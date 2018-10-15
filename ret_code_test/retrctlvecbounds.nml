@@ -1,0 +1,10 @@
+&ctlvector_bounds
+ lai_coeff_lobound = 1e-05 
+ lai_coeff_hibound = 1.0 
+ lai_lobound = 0.001 
+ lai_hibound = 10.0 
+ canht_lobound = 0.001 
+ canht_hibound = 4.5 
+ sm_lobound = 0.001 
+ sm_hibound = 0.5 
+/

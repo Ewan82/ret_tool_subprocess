@@ -1,0 +1,7 @@
+2018-10-02 14:05:31,759 INFO::<module>:: rs_pre.py::PROGRAM START::2018-10-02T14:05:31.759517
+2018-10-02 14:05:31,759 INFO::<module>:: command-line: bin/rs_pre.py pre_general
+2018-10-02 14:05:31,785 INFO::main:: user selection +++pre_general+++
+2018-10-02 14:05:31,785 INFO::pre_general:: start setup of general retrieval setup...
+2018-10-02 14:05:31,794 INFO::pre_general:: START reading namelist ***/home/if910917/.local/lib/python2.7/site-packages/signaturesimulator/site.nml***...
+2018-10-02 14:05:31,802 INFO::pre_general:: ...reading DONE
+2018-10-02 14:05:31,803 CRITICAL::pre_general:: No observational input files specified by user. Cannot continue!

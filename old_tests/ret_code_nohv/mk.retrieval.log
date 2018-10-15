@@ -1,0 +1,986 @@
+ INFO::retrieval_read_ctl:read settings from file ***retrctl.nml***...
+ INFO::retrieval_read_ctl:...reading done.
+ INFO::use_prior_term: T
+ INFO::use_state_term: T
+ INFO::gradient_tolerance: .10000E+01
+ INFO::priopr_pert: .00000E+00
+ INFO::runopti:calling initf...
+ DEBUG::load_ivgeom:ndims= 2
+ INFO::initf:retrieval configuration was read from ***retrconfig.nc***
+ DEBUG::initf:ncrd_retrieval_config has finished, yields:npts=  78 npts_s1=  69 npts_s2=   9
+ INFO::load_sitenml:successfully read site namelist file ***site.nml***
+ INFO::setprior:prior control vector was read from ***retrprior.nc***
+ DEBUG::setprior:ncrd_retrieval_prior terminated successfully
+ INFO::runopti:...done.
+ DEBUG::runopti:initf yields:n=235 mf=255
+ INFO::runopti:calling initx...
+ INFO::runopti:...done.
+ INFO::state_model_set:will be setting-up simple state-model of type "mx(i+1)=a(i+1)*x(i) + b(i+1)"
+ INFO::state_model_set:reading model configuration from file ***retrmodel.nc***...
+ INFO::state_model_set:...reading done.
+ INFO::runopti:load control vector boundary settings by calling initb...
+ INFO::initb:bounds were read from file ***retrctlvecbounds.nml***
+ INFO::initb:applying bounds: lai_coeff_lobound=    0.000 lai_coeff_hibound=    1.000
+ INFO::initb:applying bounds: lai_lobound=    0.001 lai_hibound=   10.000
+ INFO::initb:applying bounds: canht_lobound=    0.001 canht_hibound=    4.500
+ INFO::initb:applying bounds: sm_lobound=    0.001 sm_hibound=    0.500
+ INFO::runopti:...done.
+ INFO::runopti:start optimiser...
+RUNNING THE L-BFGS-B CODE
+
+           * * *
+
+Machine precision = 2.220D-16
+ N =          235     M =            5
+
+At X0         0 variables are exactly at the bounds
+ INFO::getobs:initial loading of observations...
+ INFO::getobs:reading S1 observations from ***obs_s1.nc***
+ INFO::ncrd_obs_vector:dataset ---backscatter--- detected fill-value:-99999.00000000
+ INFO::ncrd_obs_vector:dataset ---backscatter_unc--- detected fill-value:-99999.00000000
+ INFO::ncrd_obs_vector:s1 detected data fill-values:      69
+ INFO::ncrd_obs_vector:s1 detected no uncertainthy fill-values
+ INFO::getobs:...loading S1 observations done.
+ INFO::getobs:reading S2 observations from ***obs_s2.nc***
+ INFO::ncrd_obs_vector:dataset ---brf--- detected fill-value:-99999.00000000
+ INFO::ncrd_obs_vector:dataset ---brf_unc--- detected fill-value:-99999.00000000
+ INFO::ncrd_obs_vector:s2 detected data fill-values:      99
+ INFO::ncrd_obs_vector:s2 detected unc. fill-values:      99
+ INFO::getobs:...loading observations done.
+ INFO::getobs:...initial loading done
+ DIAG::cost_bw:cost_obs=     0.8317464581530116E+04
+ DIAG::cost_bw:cost_model=   0.7306637244627317E+01
+ DIAG::cost_bw:cost_prior=   0.0000000000000000E+00
+ DIAG::cost:cost_obs=     0.8317464581530116E+04
+ DIAG::cost:cost_model=   0.7306637244627317E+01
+ DIAG::cost:cost_prior=   0.0000000000000000E+00
+
+At iterate    0    f=  8.32477D+03    |proj g|=  2.86061D+01
+ DIAG::cost_bw:cost_obs=     0.1781094235866276E+04
+ DIAG::cost_bw:cost_model=   0.2292882182636431E+05
+ DIAG::cost_bw:cost_prior=   0.1699930827551798E+04
+ DIAG::cost:cost_obs=     0.1781094235866276E+04
+ DIAG::cost:cost_model=   0.2292882182636431E+05
+ DIAG::cost:cost_prior=   0.1699930827551798E+04
+ DIAG::cost_bw:cost_obs=     0.2701028950002282E+04
+ DIAG::cost_bw:cost_model=   0.1742599998457444E+04
+ DIAG::cost_bw:cost_prior=   0.1315410772480822E+03
+ DIAG::cost:cost_obs=     0.2701028950002282E+04
+ DIAG::cost:cost_model=   0.1742599998457444E+04
+ DIAG::cost:cost_prior=   0.1315410772480822E+03
+
+At iterate    1    f=  4.57517D+03    |proj g|=  8.98255D+01
+ DIAG::cost_bw:cost_obs=     0.8161163486562540E+03
+ DIAG::cost_bw:cost_model=   0.1145386735450035E+04
+ DIAG::cost_bw:cost_prior=   0.1885142875512799E+03
+ DIAG::cost:cost_obs=     0.8161163486562540E+03
+ DIAG::cost:cost_model=   0.1145386735450035E+04
+ DIAG::cost:cost_prior=   0.1885142875512799E+03
+
+At iterate    2    f=  2.15002D+03    |proj g|=  1.02766D+01
+ DIAG::cost_bw:cost_obs=     0.7483285259906944E+03
+ DIAG::cost_bw:cost_model=   0.1442665906457923E+03
+ DIAG::cost_bw:cost_prior=   0.1637813992766338E+03
+ DIAG::cost:cost_obs=     0.7483285259906944E+03
+ DIAG::cost:cost_model=   0.1442665906457923E+03
+ DIAG::cost:cost_prior=   0.1637813992766338E+03
+
+At iterate    3    f=  1.05638D+03    |proj g|=  1.00807D+01
+ DIAG::cost_bw:cost_obs=     0.6559176774608198E+03
+ DIAG::cost_bw:cost_model=   0.9120947664340252E+02
+ DIAG::cost_bw:cost_prior=   0.1365873914802810E+03
+ DIAG::cost:cost_obs=     0.6559176774608198E+03
+ DIAG::cost:cost_model=   0.9120947664340252E+02
+ DIAG::cost:cost_prior=   0.1365873914802810E+03
+
+At iterate    4    f=  8.83715D+02    |proj g|=  9.70968D+00
+ DIAG::cost_bw:cost_obs=     0.4107729291321338E+03
+ DIAG::cost_bw:cost_model=   0.1191566081552486E+03
+ DIAG::cost_bw:cost_prior=   0.6243601020948639E+02
+ DIAG::cost:cost_obs=     0.4107729291321338E+03
+ DIAG::cost:cost_model=   0.1191566081552486E+03
+ DIAG::cost:cost_prior=   0.6243601020948639E+02
+
+At iterate    5    f=  5.92366D+02    |proj g|=  5.19706D+00
+ DIAG::cost_bw:cost_obs=     0.2623546255475323E+03
+ DIAG::cost_bw:cost_model=   0.8154162138443105E+02
+ DIAG::cost_bw:cost_prior=   0.7118071615097723E+02
+ DIAG::cost:cost_obs=     0.2623546255475323E+03
+ DIAG::cost:cost_model=   0.8154162138443105E+02
+ DIAG::cost:cost_prior=   0.7118071615097723E+02
+
+At iterate    6    f=  4.15077D+02    |proj g|=  5.45028D+00
+ DIAG::cost_bw:cost_obs=     0.2147094299352737E+03
+ DIAG::cost_bw:cost_model=   0.4959594055284321E+02
+ DIAG::cost_bw:cost_prior=   0.7239689237630152E+02
+ DIAG::cost:cost_obs=     0.2147094299352737E+03
+ DIAG::cost:cost_model=   0.4959594055284321E+02
+ DIAG::cost:cost_prior=   0.7239689237630152E+02
+
+At iterate    7    f=  3.36702D+02    |proj g|=  4.52258D+00
+ DIAG::cost_bw:cost_obs=     0.2017853453772869E+03
+ DIAG::cost_bw:cost_model=   0.4120058533813538E+02
+ DIAG::cost_bw:cost_prior=   0.7230573501994672E+02
+ DIAG::cost:cost_obs=     0.2017853453772869E+03
+ DIAG::cost:cost_model=   0.4120058533813538E+02
+ DIAG::cost:cost_prior=   0.7230573501994672E+02
+
+At iterate    8    f=  3.15292D+02    |proj g|=  4.42071D+00
+ DIAG::cost_bw:cost_obs=     0.1817771976557702E+03
+ DIAG::cost_bw:cost_model=   0.3836787244441312E+02
+ DIAG::cost_bw:cost_prior=   0.7352623668779356E+02
+ DIAG::cost:cost_obs=     0.1817771976557702E+03
+ DIAG::cost:cost_model=   0.3836787244441312E+02
+ DIAG::cost:cost_prior=   0.7352623668779356E+02
+
+At iterate    9    f=  2.93671D+02    |proj g|=  4.33830D+00
+ DIAG::cost_bw:cost_obs=     0.1688035067176617E+03
+ DIAG::cost_bw:cost_model=   0.3866620541865614E+02
+ DIAG::cost_bw:cost_prior=   0.6994752353505744E+02
+ DIAG::cost:cost_obs=     0.1688035067176617E+03
+ DIAG::cost:cost_model=   0.3866620541865614E+02
+ DIAG::cost:cost_prior=   0.6994752353505744E+02
+
+At iterate   10    f=  2.77417D+02    |proj g|=  1.60291D+01
+ DIAG::cost_bw:cost_obs=     0.1576519388730396E+03
+ DIAG::cost_bw:cost_model=   0.3758127208011646E+02
+ DIAG::cost_bw:cost_prior=   0.6851932887643056E+02
+ DIAG::cost:cost_obs=     0.1576519388730396E+03
+ DIAG::cost:cost_model=   0.3758127208011646E+02
+ DIAG::cost:cost_prior=   0.6851932887643056E+02
+
+At iterate   11    f=  2.63753D+02    |proj g|=  9.61699D+00
+ DIAG::cost_bw:cost_obs=     0.1513170877095622E+03
+ DIAG::cost_bw:cost_model=   0.3551592027877710E+02
+ DIAG::cost_bw:cost_prior=   0.6747049186883685E+02
+ DIAG::cost:cost_obs=     0.1513170877095622E+03
+ DIAG::cost:cost_model=   0.3551592027877710E+02
+ DIAG::cost:cost_prior=   0.6747049186883685E+02
+
+At iterate   12    f=  2.54303D+02    |proj g|=  3.71609D+00
+ DIAG::cost_bw:cost_obs=     0.1403432306055952E+03
+ DIAG::cost_bw:cost_model=   0.3598271471001632E+02
+ DIAG::cost_bw:cost_prior=   0.6592737253095133E+02
+ DIAG::cost:cost_obs=     0.1403432306055952E+03
+ DIAG::cost:cost_model=   0.3598271471001632E+02
+ DIAG::cost:cost_prior=   0.6592737253095133E+02
+
+At iterate   13    f=  2.42253D+02    |proj g|=  3.89922D+00
+ DIAG::cost_bw:cost_obs=     0.1327677865618362E+03
+ DIAG::cost_bw:cost_model=   0.3872446196291281E+02
+ DIAG::cost_bw:cost_prior=   0.6469227149382520E+02
+ DIAG::cost:cost_obs=     0.1327677865618362E+03
+ DIAG::cost:cost_model=   0.3872446196291281E+02
+ DIAG::cost:cost_prior=   0.6469227149382520E+02
+
+At iterate   14    f=  2.36185D+02    |proj g|=  3.56732D+00
+ DIAG::cost_bw:cost_obs=     0.1287232988992740E+03
+ DIAG::cost_bw:cost_model=   0.3481429292491817E+02
+ DIAG::cost_bw:cost_prior=   0.6476761955243322E+02
+ DIAG::cost:cost_obs=     0.1287232988992740E+03
+ DIAG::cost:cost_model=   0.3481429292491817E+02
+ DIAG::cost:cost_prior=   0.6476761955243322E+02
+
+At iterate   15    f=  2.28305D+02    |proj g|=  3.51225D+00
+ DIAG::cost_bw:cost_obs=     0.1232805706835319E+03
+ DIAG::cost_bw:cost_model=   0.3366008862773946E+02
+ DIAG::cost_bw:cost_prior=   0.6486872947097241E+02
+ DIAG::cost:cost_obs=     0.1232805706835319E+03
+ DIAG::cost:cost_model=   0.3366008862773946E+02
+ DIAG::cost:cost_prior=   0.6486872947097241E+02
+
+At iterate   16    f=  2.21809D+02    |proj g|=  3.39635D+00
+ DIAG::cost_bw:cost_obs=     0.1183639654892470E+03
+ DIAG::cost_bw:cost_model=   0.3320162253353703E+02
+ DIAG::cost_bw:cost_prior=   0.6472091116291878E+02
+ DIAG::cost:cost_obs=     0.1183639654892470E+03
+ DIAG::cost:cost_model=   0.3320162253353703E+02
+ DIAG::cost:cost_prior=   0.6472091116291878E+02
+
+At iterate   17    f=  2.16286D+02    |proj g|=  3.25795D+00
+ DIAG::cost_bw:cost_obs=     0.1094738460590502E+03
+ DIAG::cost_bw:cost_model=   0.3370164902564670E+02
+ DIAG::cost_bw:cost_prior=   0.6451922320508301E+02
+ DIAG::cost:cost_obs=     0.1094738460590502E+03
+ DIAG::cost:cost_model=   0.3370164902564670E+02
+ DIAG::cost:cost_prior=   0.6451922320508301E+02
+
+At iterate   18    f=  2.07695D+02    |proj g|=  3.22038D+00
+ DIAG::cost_bw:cost_obs=     0.1054380306637964E+03
+ DIAG::cost_bw:cost_model=   0.3267465899705352E+02
+ DIAG::cost_bw:cost_prior=   0.6506107111742267E+02
+ DIAG::cost:cost_obs=     0.1054380306637964E+03
+ DIAG::cost:cost_model=   0.3267465899705352E+02
+ DIAG::cost:cost_prior=   0.6506107111742267E+02
+
+At iterate   19    f=  2.03174D+02    |proj g|=  1.23436D+01
+ DIAG::cost_bw:cost_obs=     0.1007620646046236E+03
+ DIAG::cost_bw:cost_model=   0.3048505097929456E+02
+ DIAG::cost_bw:cost_prior=   0.6443093205998662E+02
+ DIAG::cost:cost_obs=     0.1007620646046236E+03
+ DIAG::cost:cost_model=   0.3048505097929456E+02
+ DIAG::cost:cost_prior=   0.6443093205998662E+02
+
+At iterate   20    f=  1.95678D+02    |proj g|=  4.97123D+00
+ DIAG::cost_bw:cost_obs=     0.9707653723510116E+02
+ DIAG::cost_bw:cost_model=   0.3000771716289020E+02
+ DIAG::cost_bw:cost_prior=   0.6392524151405719E+02
+ DIAG::cost:cost_obs=     0.9707653723510116E+02
+ DIAG::cost:cost_model=   0.3000771716289020E+02
+ DIAG::cost:cost_prior=   0.6392524151405719E+02
+
+At iterate   21    f=  1.91009D+02    |proj g|=  3.14603D+00
+ DIAG::cost_bw:cost_obs=     0.9228148881555738E+02
+ DIAG::cost_bw:cost_model=   0.3066151552152817E+02
+ DIAG::cost_bw:cost_prior=   0.6427782701565884E+02
+ DIAG::cost:cost_obs=     0.9228148881555738E+02
+ DIAG::cost:cost_model=   0.3066151552152817E+02
+ DIAG::cost:cost_prior=   0.6427782701565884E+02
+
+At iterate   22    f=  1.87221D+02    |proj g|=  3.00871D+00
+ DIAG::cost_bw:cost_obs=     0.9096394384207338E+02
+ DIAG::cost_bw:cost_model=   0.2978280227604023E+02
+ DIAG::cost_bw:cost_prior=   0.6489873544930884E+02
+ DIAG::cost:cost_obs=     0.9096394384207338E+02
+ DIAG::cost:cost_model=   0.2978280227604023E+02
+ DIAG::cost:cost_prior=   0.6489873544930884E+02
+
+At iterate   23    f=  1.85645D+02    |proj g|=  2.99538D+00
+ DIAG::cost_bw:cost_obs=     0.8882924476714288E+02
+ DIAG::cost_bw:cost_model=   0.2964350213198417E+02
+ DIAG::cost_bw:cost_prior=   0.6574935154433297E+02
+ DIAG::cost:cost_obs=     0.8882924476714288E+02
+ DIAG::cost:cost_model=   0.2964350213198417E+02
+ DIAG::cost:cost_prior=   0.6574935154433297E+02
+
+At iterate   24    f=  1.84222D+02    |proj g|=  3.10284D+00
+ DIAG::cost_bw:cost_obs=     0.8597938780596164E+02
+ DIAG::cost_bw:cost_model=   0.2930031377098808E+02
+ DIAG::cost_bw:cost_prior=   0.6702708725737530E+02
+ DIAG::cost:cost_obs=     0.8597938780596164E+02
+ DIAG::cost:cost_model=   0.2930031377098808E+02
+ DIAG::cost:cost_prior=   0.6702708725737530E+02
+
+At iterate   25    f=  1.82307D+02    |proj g|=  3.83184D+00
+ DIAG::cost_bw:cost_obs=     0.8158723798426338E+02
+ DIAG::cost_bw:cost_model=   0.3065456535743943E+02
+ DIAG::cost_bw:cost_prior=   0.6920074549138499E+02
+ DIAG::cost:cost_obs=     0.8158723798426338E+02
+ DIAG::cost:cost_model=   0.3065456535743943E+02
+ DIAG::cost:cost_prior=   0.6920074549138499E+02
+
+At iterate   26    f=  1.81443D+02    |proj g|=  3.18095D+00
+ DIAG::cost_bw:cost_obs=     0.8055114508413580E+02
+ DIAG::cost_bw:cost_model=   0.2746995191027095E+02
+ DIAG::cost_bw:cost_prior=   0.6933189051642584E+02
+ DIAG::cost:cost_obs=     0.8055114508413580E+02
+ DIAG::cost:cost_model=   0.2746995191027095E+02
+ DIAG::cost:cost_prior=   0.6933189051642584E+02
+
+At iterate   27    f=  1.77353D+02    |proj g|=  3.17382D+00
+ DIAG::cost_bw:cost_obs=     0.7957441967973344E+02
+ DIAG::cost_bw:cost_model=   0.2691834511335461E+02
+ DIAG::cost_bw:cost_prior=   0.6965948661324877E+02
+ DIAG::cost:cost_obs=     0.7957441967973344E+02
+ DIAG::cost:cost_model=   0.2691834511335461E+02
+ DIAG::cost:cost_prior=   0.6965948661324877E+02
+
+At iterate   28    f=  1.76152D+02    |proj g|=  2.89959D+00
+ DIAG::cost_bw:cost_obs=     0.7830047035412332E+02
+ DIAG::cost_bw:cost_model=   0.2640743207734377E+02
+ DIAG::cost_bw:cost_prior=   0.6994128543428180E+02
+ DIAG::cost:cost_obs=     0.7830047035412332E+02
+ DIAG::cost:cost_model=   0.2640743207734377E+02
+ DIAG::cost:cost_prior=   0.6994128543428180E+02
+
+At iterate   29    f=  1.74649D+02    |proj g|=  2.90716D+00
+ DIAG::cost_bw:cost_obs=     0.7688859540480286E+02
+ DIAG::cost_bw:cost_model=   0.2560385860390557E+02
+ DIAG::cost_bw:cost_prior=   0.6994378510184671E+02
+ DIAG::cost:cost_obs=     0.7688859540480286E+02
+ DIAG::cost:cost_model=   0.2560385860390557E+02
+ DIAG::cost:cost_prior=   0.6994378510184671E+02
+
+At iterate   30    f=  1.72436D+02    |proj g|=  2.75162D+00
+ DIAG::cost_bw:cost_obs=     0.7603572126188057E+02
+ DIAG::cost_bw:cost_model=   0.2537931819930340E+02
+ DIAG::cost_bw:cost_prior=   0.7055353421482147E+02
+ DIAG::cost:cost_obs=     0.7603572126188057E+02
+ DIAG::cost:cost_model=   0.2537931819930340E+02
+ DIAG::cost:cost_prior=   0.7055353421482147E+02
+
+At iterate   31    f=  1.71969D+02    |proj g|=  3.23254D+00
+ DIAG::cost_bw:cost_obs=     0.7551497617420497E+02
+ DIAG::cost_bw:cost_model=   0.2361792995151106E+02
+ DIAG::cost_bw:cost_prior=   0.7032943125780983E+02
+ DIAG::cost:cost_obs=     0.7551497617420497E+02
+ DIAG::cost:cost_model=   0.2361792995151106E+02
+ DIAG::cost:cost_prior=   0.7032943125780983E+02
+
+At iterate   32    f=  1.69462D+02    |proj g|=  2.96960D+00
+ DIAG::cost_bw:cost_obs=     0.7521045279147860E+02
+ DIAG::cost_bw:cost_model=   0.2327942172206417E+02
+ DIAG::cost_bw:cost_prior=   0.7022156407259634E+02
+ DIAG::cost:cost_obs=     0.7521045279147860E+02
+ DIAG::cost:cost_model=   0.2327942172206417E+02
+ DIAG::cost:cost_prior=   0.7022156407259634E+02
+
+At iterate   33    f=  1.68711D+02    |proj g|=  2.44492D+00
+ DIAG::cost_bw:cost_obs=     0.7463943395115089E+02
+ DIAG::cost_bw:cost_model=   0.2263645908114400E+02
+ DIAG::cost_bw:cost_prior=   0.6991976198376889E+02
+ DIAG::cost:cost_obs=     0.7463943395115089E+02
+ DIAG::cost:cost_model=   0.2263645908114400E+02
+ DIAG::cost:cost_prior=   0.6991976198376889E+02
+
+At iterate   34    f=  1.67196D+02    |proj g|=  3.18294D+00
+ DIAG::cost_bw:cost_obs=     0.7576524554735346E+02
+ DIAG::cost_bw:cost_model=   0.2227513371629620E+02
+ DIAG::cost_bw:cost_prior=   0.6939306138759831E+02
+ DIAG::cost:cost_obs=     0.7576524554735346E+02
+ DIAG::cost:cost_model=   0.2227513371629620E+02
+ DIAG::cost:cost_prior=   0.6939306138759831E+02
+ DIAG::cost_bw:cost_obs=     0.7487509894518909E+02
+ DIAG::cost_bw:cost_model=   0.2226137783011943E+02
+ DIAG::cost_bw:cost_prior=   0.6973137815106665E+02
+ DIAG::cost:cost_obs=     0.7487509894518909E+02
+ DIAG::cost:cost_model=   0.2226137783011943E+02
+ DIAG::cost:cost_prior=   0.6973137815106665E+02
+
+At iterate   35    f=  1.66868D+02    |proj g|=  3.17889D+00
+ DIAG::cost_bw:cost_obs=     0.7490259675962896E+02
+ DIAG::cost_bw:cost_model=   0.2142705694939118E+02
+ DIAG::cost_bw:cost_prior=   0.6930418939328804E+02
+ DIAG::cost:cost_obs=     0.7490259675962896E+02
+ DIAG::cost:cost_model=   0.2142705694939118E+02
+ DIAG::cost:cost_prior=   0.6930418939328804E+02
+
+At iterate   36    f=  1.65634D+02    |proj g|=  2.95021D+00
+ DIAG::cost_bw:cost_obs=     0.7454958001616053E+02
+ DIAG::cost_bw:cost_model=   0.2041917293571521E+02
+ DIAG::cost_bw:cost_prior=   0.6861104732818355E+02
+ DIAG::cost:cost_obs=     0.7454958001616053E+02
+ DIAG::cost:cost_model=   0.2041917293571521E+02
+ DIAG::cost:cost_prior=   0.6861104732818355E+02
+
+At iterate   37    f=  1.63580D+02    |proj g|=  2.94396D+00
+ DIAG::cost_bw:cost_obs=     0.7416137560989844E+02
+ DIAG::cost_bw:cost_model=   0.2106503167860538E+02
+ DIAG::cost_bw:cost_prior=   0.6782378271244677E+02
+ DIAG::cost:cost_obs=     0.7416137560989844E+02
+ DIAG::cost:cost_model=   0.2106503167860538E+02
+ DIAG::cost:cost_prior=   0.6782378271244677E+02
+ DIAG::cost_bw:cost_obs=     0.7399400789479138E+02
+ DIAG::cost_bw:cost_model=   0.2006821761334468E+02
+ DIAG::cost_bw:cost_prior=   0.6817088908826035E+02
+ DIAG::cost:cost_obs=     0.7399400789479138E+02
+ DIAG::cost:cost_model=   0.2006821761334468E+02
+ DIAG::cost:cost_prior=   0.6817088908826035E+02
+
+At iterate   38    f=  1.62233D+02    |proj g|=  2.96028D+00
+ DIAG::cost_bw:cost_obs=     0.7371863726383694E+02
+ DIAG::cost_bw:cost_model=   0.1961979065904908E+02
+ DIAG::cost_bw:cost_prior=   0.6787307903190637E+02
+ DIAG::cost:cost_obs=     0.7371863726383694E+02
+ DIAG::cost:cost_model=   0.1961979065904908E+02
+ DIAG::cost:cost_prior=   0.6787307903190637E+02
+
+At iterate   39    f=  1.61212D+02    |proj g|=  2.06147D+00
+ DIAG::cost_bw:cost_obs=     0.7321786047187506E+02
+ DIAG::cost_bw:cost_model=   0.1942083582337628E+02
+ DIAG::cost_bw:cost_prior=   0.6761947798565001E+02
+ DIAG::cost:cost_obs=     0.7321786047187506E+02
+ DIAG::cost:cost_model=   0.1942083582337628E+02
+ DIAG::cost:cost_prior=   0.6761947798565001E+02
+
+At iterate   40    f=  1.60258D+02    |proj g|=  2.07605D+00
+ DIAG::cost_bw:cost_obs=     0.7247858223014903E+02
+ DIAG::cost_bw:cost_model=   0.1935753180742203E+02
+ DIAG::cost_bw:cost_prior=   0.6725904100893264E+02
+ DIAG::cost:cost_obs=     0.7247858223014903E+02
+ DIAG::cost:cost_model=   0.1935753180742203E+02
+ DIAG::cost:cost_prior=   0.6725904100893264E+02
+
+At iterate   41    f=  1.59095D+02    |proj g|=  2.96590D+00
+ DIAG::cost_bw:cost_obs=     0.7229945135275040E+02
+ DIAG::cost_bw:cost_model=   0.1874332607310041E+02
+ DIAG::cost_bw:cost_prior=   0.6704677900579816E+02
+ DIAG::cost:cost_obs=     0.7229945135275040E+02
+ DIAG::cost:cost_model=   0.1874332607310041E+02
+ DIAG::cost:cost_prior=   0.6704677900579816E+02
+
+At iterate   42    f=  1.58090D+02    |proj g|=  2.93044D+00
+ DIAG::cost_bw:cost_obs=     0.7194287686951586E+02
+ DIAG::cost_bw:cost_model=   0.1850074206735992E+02
+ DIAG::cost_bw:cost_prior=   0.6695612285943122E+02
+ DIAG::cost:cost_obs=     0.7194287686951586E+02
+ DIAG::cost:cost_model=   0.1850074206735992E+02
+ DIAG::cost:cost_prior=   0.6695612285943122E+02
+
+At iterate   43    f=  1.57400D+02    |proj g|=  2.37389D+00
+ DIAG::cost_bw:cost_obs=     0.7226808284012202E+02
+ DIAG::cost_bw:cost_model=   0.1802950942282270E+02
+ DIAG::cost_bw:cost_prior=   0.6666252897991527E+02
+ DIAG::cost:cost_obs=     0.7226808284012202E+02
+ DIAG::cost:cost_model=   0.1802950942282270E+02
+ DIAG::cost:cost_prior=   0.6666252897991527E+02
+
+At iterate   44    f=  1.56960D+02    |proj g|=  2.93373D+00
+ DIAG::cost_bw:cost_obs=     0.7203259949925358E+02
+ DIAG::cost_bw:cost_model=   0.1757647728703144E+02
+ DIAG::cost_bw:cost_prior=   0.6628695388597839E+02
+ DIAG::cost:cost_obs=     0.7203259949925358E+02
+ DIAG::cost:cost_model=   0.1757647728703144E+02
+ DIAG::cost:cost_prior=   0.6628695388597839E+02
+
+At iterate   45    f=  1.55896D+02    |proj g|=  2.94602D+00
+ DIAG::cost_bw:cost_obs=     0.7207757704368629E+02
+ DIAG::cost_bw:cost_model=   0.1730285850760476E+02
+ DIAG::cost_bw:cost_prior=   0.6603354225103851E+02
+ DIAG::cost:cost_obs=     0.7207757704368629E+02
+ DIAG::cost:cost_model=   0.1730285850760476E+02
+ DIAG::cost:cost_prior=   0.6603354225103851E+02
+
+At iterate   46    f=  1.55414D+02    |proj g|=  2.94684D+00
+ DIAG::cost_bw:cost_obs=     0.7263699198964193E+02
+ DIAG::cost_bw:cost_model=   0.1697612277311133E+02
+ DIAG::cost_bw:cost_prior=   0.6549575014482363E+02
+ DIAG::cost:cost_obs=     0.7263699198964193E+02
+ DIAG::cost:cost_model=   0.1697612277311133E+02
+ DIAG::cost:cost_prior=   0.6549575014482363E+02
+
+At iterate   47    f=  1.55109D+02    |proj g|=  2.51125D+00
+ DIAG::cost_bw:cost_obs=     0.7302969388964846E+02
+ DIAG::cost_bw:cost_model=   0.1705762346056158E+02
+ DIAG::cost_bw:cost_prior=   0.6516648171291672E+02
+ DIAG::cost:cost_obs=     0.7302969388964846E+02
+ DIAG::cost:cost_model=   0.1705762346056158E+02
+ DIAG::cost:cost_prior=   0.6516648171291672E+02
+ DIAG::cost_bw:cost_obs=     0.7263011358077659E+02
+ DIAG::cost_bw:cost_model=   0.1692670809891120E+02
+ DIAG::cost_bw:cost_prior=   0.6539974330507565E+02
+ DIAG::cost:cost_obs=     0.7263011358077659E+02
+ DIAG::cost:cost_model=   0.1692670809891120E+02
+ DIAG::cost:cost_prior=   0.6539974330507565E+02
+
+At iterate   48    f=  1.54957D+02    |proj g|=  2.42289D+00
+ DIAG::cost_bw:cost_obs=     0.7265678532965960E+02
+ DIAG::cost_bw:cost_model=   0.1690388410437440E+02
+ DIAG::cost_bw:cost_prior=   0.6510529629607461E+02
+ DIAG::cost:cost_obs=     0.7265678532965960E+02
+ DIAG::cost:cost_model=   0.1690388410437440E+02
+ DIAG::cost:cost_prior=   0.6510529629607461E+02
+
+At iterate   49    f=  1.54666D+02    |proj g|=  2.93210D+00
+ DIAG::cost_bw:cost_obs=     0.7293055623699908E+02
+ DIAG::cost_bw:cost_model=   0.1679433596045656E+02
+ DIAG::cost_bw:cost_prior=   0.6475916855537389E+02
+ DIAG::cost:cost_obs=     0.7293055623699908E+02
+ DIAG::cost:cost_model=   0.1679433596045656E+02
+ DIAG::cost:cost_prior=   0.6475916855537389E+02
+
+At iterate   50    f=  1.54484D+02    |proj g|=  2.93303D+00
+ DIAG::cost_bw:cost_obs=     0.7286634713815647E+02
+ DIAG::cost_bw:cost_model=   0.1716960938204845E+02
+ DIAG::cost_bw:cost_prior=   0.6414296751579721E+02
+ DIAG::cost:cost_obs=     0.7286634713815647E+02
+ DIAG::cost:cost_model=   0.1716960938204845E+02
+ DIAG::cost:cost_prior=   0.6414296751579721E+02
+ DIAG::cost_bw:cost_obs=     0.7280666209782179E+02
+ DIAG::cost_bw:cost_model=   0.1678511817249586E+02
+ DIAG::cost_bw:cost_prior=   0.6441674663370188E+02
+ DIAG::cost:cost_obs=     0.7280666209782179E+02
+ DIAG::cost:cost_model=   0.1678511817249586E+02
+ DIAG::cost:cost_prior=   0.6441674663370188E+02
+
+At iterate   51    f=  1.54009D+02    |proj g|=  2.45948D+00
+ DIAG::cost_bw:cost_obs=     0.7267996500370164E+02
+ DIAG::cost_bw:cost_model=   0.1658007860907576E+02
+ DIAG::cost_bw:cost_prior=   0.6418071844283672E+02
+ DIAG::cost:cost_obs=     0.7267996500370164E+02
+ DIAG::cost:cost_model=   0.1658007860907576E+02
+ DIAG::cost:cost_prior=   0.6418071844283672E+02
+
+At iterate   52    f=  1.53441D+02    |proj g|=  2.14708D+00
+ DIAG::cost_bw:cost_obs=     0.7263660680644765E+02
+ DIAG::cost_bw:cost_model=   0.1644526251984817E+02
+ DIAG::cost_bw:cost_prior=   0.6395827873960200E+02
+ DIAG::cost:cost_obs=     0.7263660680644765E+02
+ DIAG::cost:cost_model=   0.1644526251984817E+02
+ DIAG::cost:cost_prior=   0.6395827873960200E+02
+
+At iterate   53    f=  1.53040D+02    |proj g|=  2.36427D+00
+ DIAG::cost_bw:cost_obs=     0.7228911397264729E+02
+ DIAG::cost_bw:cost_model=   0.1672339251324191E+02
+ DIAG::cost_bw:cost_prior=   0.6375727329925907E+02
+ DIAG::cost:cost_obs=     0.7228911397264729E+02
+ DIAG::cost:cost_model=   0.1672339251324191E+02
+ DIAG::cost:cost_prior=   0.6375727329925907E+02
+
+At iterate   54    f=  1.52770D+02    |proj g|=  2.81612D+00
+ DIAG::cost_bw:cost_obs=     0.7208401129134899E+02
+ DIAG::cost_bw:cost_model=   0.1664229546493300E+02
+ DIAG::cost_bw:cost_prior=   0.6371335098914467E+02
+ DIAG::cost:cost_obs=     0.7208401129134899E+02
+ DIAG::cost:cost_model=   0.1664229546493300E+02
+ DIAG::cost:cost_prior=   0.6371335098914467E+02
+
+At iterate   55    f=  1.52440D+02    |proj g|=  2.17069D+00
+ DIAG::cost_bw:cost_obs=     0.7150012032824199E+02
+ DIAG::cost_bw:cost_model=   0.1683032905093823E+02
+ DIAG::cost_bw:cost_prior=   0.6372704278375647E+02
+ DIAG::cost:cost_obs=     0.7150012032824199E+02
+ DIAG::cost:cost_model=   0.1683032905093823E+02
+ DIAG::cost:cost_prior=   0.6372704278375647E+02
+
+At iterate   56    f=  1.52057D+02    |proj g|=  2.18405D+00
+ DIAG::cost_bw:cost_obs=     0.7092898038650253E+02
+ DIAG::cost_bw:cost_model=   0.1724454880488108E+02
+ DIAG::cost_bw:cost_prior=   0.6373250314136433E+02
+ DIAG::cost:cost_obs=     0.7092898038650253E+02
+ DIAG::cost:cost_model=   0.1724454880488108E+02
+ DIAG::cost:cost_prior=   0.6373250314136433E+02
+
+At iterate   57    f=  1.51906D+02    |proj g|=  2.93476D+00
+ DIAG::cost_bw:cost_obs=     0.6914279772973781E+02
+ DIAG::cost_bw:cost_model=   0.1824893456812425E+02
+ DIAG::cost_bw:cost_prior=   0.6381471321843052E+02
+ DIAG::cost:cost_obs=     0.6914279772973781E+02
+ DIAG::cost:cost_model=   0.1824893456812425E+02
+ DIAG::cost:cost_prior=   0.6381471321843052E+02
+
+At iterate   58    f=  1.51206D+02    |proj g|=  2.96278D+00
+ DIAG::cost_bw:cost_obs=     0.6868303267162553E+02
+ DIAG::cost_bw:cost_model=   0.1835544918952764E+02
+ DIAG::cost_bw:cost_prior=   0.6386983150253385E+02
+ DIAG::cost:cost_obs=     0.6868303267162553E+02
+ DIAG::cost:cost_model=   0.1835544918952764E+02
+ DIAG::cost:cost_prior=   0.6386983150253385E+02
+
+At iterate   59    f=  1.50908D+02    |proj g|=  2.27758D+00
+ DIAG::cost_bw:cost_obs=     0.6841637211945019E+02
+ DIAG::cost_bw:cost_model=   0.1849724607024837E+02
+ DIAG::cost_bw:cost_prior=   0.6393606689233823E+02
+ DIAG::cost:cost_obs=     0.6841637211945019E+02
+ DIAG::cost:cost_model=   0.1849724607024837E+02
+ DIAG::cost:cost_prior=   0.6393606689233823E+02
+
+At iterate   60    f=  1.50850D+02    |proj g|=  2.93603D+00
+ DIAG::cost_bw:cost_obs=     0.6778825179727681E+02
+ DIAG::cost_bw:cost_model=   0.1867651157502178E+02
+ DIAG::cost_bw:cost_prior=   0.6409319300231365E+02
+ DIAG::cost:cost_obs=     0.6778825179727681E+02
+ DIAG::cost:cost_model=   0.1867651157502178E+02
+ DIAG::cost:cost_prior=   0.6409319300231365E+02
+
+At iterate   61    f=  1.50558D+02    |proj g|=  2.93946D+00
+ DIAG::cost_bw:cost_obs=     0.6619194601281454E+02
+ DIAG::cost_bw:cost_model=   0.1951179967006826E+02
+ DIAG::cost_bw:cost_prior=   0.6456180132588506E+02
+ DIAG::cost:cost_obs=     0.6619194601281454E+02
+ DIAG::cost:cost_model=   0.1951179967006826E+02
+ DIAG::cost:cost_prior=   0.6456180132588506E+02
+ DIAG::cost_bw:cost_obs=     0.6680472410243436E+02
+ DIAG::cost_bw:cost_model=   0.1895037756427286E+02
+ DIAG::cost_bw:cost_prior=   0.6430452087211604E+02
+ DIAG::cost:cost_obs=     0.6680472410243436E+02
+ DIAG::cost:cost_model=   0.1895037756427286E+02
+ DIAG::cost:cost_prior=   0.6430452087211604E+02
+
+At iterate   62    f=  1.50060D+02    |proj g|=  2.90454D+00
+ DIAG::cost_bw:cost_obs=     0.6652865488613659E+02
+ DIAG::cost_bw:cost_model=   0.1893756355057184E+02
+ DIAG::cost_bw:cost_prior=   0.6451239311331639E+02
+ DIAG::cost:cost_obs=     0.6652865488613659E+02
+ DIAG::cost:cost_model=   0.1893756355057184E+02
+ DIAG::cost:cost_prior=   0.6451239311331639E+02
+
+At iterate   63    f=  1.49979D+02    |proj g|=  1.93565D+00
+ DIAG::cost_bw:cost_obs=     0.6615795591854173E+02
+ DIAG::cost_bw:cost_model=   0.1896560844140071E+02
+ DIAG::cost_bw:cost_prior=   0.6469427821781557E+02
+ DIAG::cost:cost_obs=     0.6615795591854173E+02
+ DIAG::cost:cost_model=   0.1896560844140071E+02
+ DIAG::cost:cost_prior=   0.6469427821781557E+02
+
+At iterate   64    f=  1.49818D+02    |proj g|=  1.29910D+00
+ DIAG::cost_bw:cost_obs=     0.6570903155788571E+02
+ DIAG::cost_bw:cost_model=   0.1902077122743327E+02
+ DIAG::cost_bw:cost_prior=   0.6495296452516416E+02
+ DIAG::cost:cost_obs=     0.6570903155788571E+02
+ DIAG::cost:cost_model=   0.1902077122743327E+02
+ DIAG::cost:cost_prior=   0.6495296452516416E+02
+
+At iterate   65    f=  1.49683D+02    |proj g|=  1.68308D+00
+ DIAG::cost_bw:cost_obs=     0.6496530643189601E+02
+ DIAG::cost_bw:cost_model=   0.1924573185729070E+02
+ DIAG::cost_bw:cost_prior=   0.6547380873941455E+02
+ DIAG::cost:cost_obs=     0.6496530643189601E+02
+ DIAG::cost:cost_model=   0.1924573185729070E+02
+ DIAG::cost:cost_prior=   0.6547380873941455E+02
+ DIAG::cost_bw:cost_obs=     0.6539813352826623E+02
+ DIAG::cost_bw:cost_model=   0.1907249650766909E+02
+ DIAG::cost_bw:cost_prior=   0.6512453194538166E+02
+ DIAG::cost:cost_obs=     0.6539813352826623E+02
+ DIAG::cost:cost_model=   0.1907249650766909E+02
+ DIAG::cost:cost_prior=   0.6512453194538166E+02
+
+At iterate   66    f=  1.49595D+02    |proj g|=  1.74668D+00
+ DIAG::cost_bw:cost_obs=     0.6452688229013597E+02
+ DIAG::cost_bw:cost_model=   0.1917908143967785E+02
+ DIAG::cost_bw:cost_prior=   0.6578905422261100E+02
+ DIAG::cost:cost_obs=     0.6452688229013597E+02
+ DIAG::cost:cost_model=   0.1917908143967785E+02
+ DIAG::cost:cost_prior=   0.6578905422261100E+02
+
+At iterate   67    f=  1.49495D+02    |proj g|=  1.53166D+00
+ DIAG::cost_bw:cost_obs=     0.6338538859950167E+02
+ DIAG::cost_bw:cost_model=   0.1948563163652568E+02
+ DIAG::cost_bw:cost_prior=   0.6671599530508507E+02
+ DIAG::cost:cost_obs=     0.6338538859950167E+02
+ DIAG::cost:cost_model=   0.1948563163652568E+02
+ DIAG::cost:cost_prior=   0.6671599530508507E+02
+ DIAG::cost_bw:cost_obs=     0.6406084393181084E+02
+ DIAG::cost_bw:cost_model=   0.1921530237781912E+02
+ DIAG::cost_bw:cost_prior=   0.6606855201252667E+02
+ DIAG::cost:cost_obs=     0.6406084393181084E+02
+ DIAG::cost:cost_model=   0.1921530237781912E+02
+ DIAG::cost:cost_prior=   0.6606855201252667E+02
+
+At iterate   68    f=  1.49345D+02    |proj g|=  2.34879D+00
+ DIAG::cost_bw:cost_obs=     0.6298540734260612E+02
+ DIAG::cost_bw:cost_model=   0.1919858382677364E+02
+ DIAG::cost_bw:cost_prior=   0.6689012086122264E+02
+ DIAG::cost:cost_obs=     0.6298540734260612E+02
+ DIAG::cost:cost_model=   0.1919858382677364E+02
+ DIAG::cost:cost_prior=   0.6689012086122264E+02
+
+At iterate   69    f=  1.49074D+02    |proj g|=  1.79465D+00
+ DIAG::cost_bw:cost_obs=     0.6285778555647683E+02
+ DIAG::cost_bw:cost_model=   0.1904771819678375E+02
+ DIAG::cost_bw:cost_prior=   0.6773633972415620E+02
+ DIAG::cost:cost_obs=     0.6285778555647683E+02
+ DIAG::cost:cost_model=   0.1904771819678375E+02
+ DIAG::cost:cost_prior=   0.6773633972415620E+02
+ DIAG::cost_bw:cost_obs=     0.6288282231441598E+02
+ DIAG::cost_bw:cost_model=   0.1915221113014592E+02
+ DIAG::cost_bw:cost_prior=   0.6698763502641441E+02
+ DIAG::cost:cost_obs=     0.6288282231441598E+02
+ DIAG::cost:cost_model=   0.1915221113014592E+02
+ DIAG::cost:cost_prior=   0.6698763502641441E+02
+
+At iterate   70    f=  1.49023D+02    |proj g|=  2.14550D+00
+ DIAG::cost_bw:cost_obs=     0.6233442527412735E+02
+ DIAG::cost_bw:cost_model=   0.1886450177932657E+02
+ DIAG::cost_bw:cost_prior=   0.6760850356192705E+02
+ DIAG::cost:cost_obs=     0.6233442527412735E+02
+ DIAG::cost:cost_model=   0.1886450177932657E+02
+ DIAG::cost:cost_prior=   0.6760850356192705E+02
+
+At iterate   71    f=  1.48807D+02    |proj g|=  1.75663D+00
+ DIAG::cost_bw:cost_obs=     0.6207455885097126E+02
+ DIAG::cost_bw:cost_model=   0.1874650103659759E+02
+ DIAG::cost_bw:cost_prior=   0.6793062641501501E+02
+ DIAG::cost:cost_obs=     0.6207455885097126E+02
+ DIAG::cost:cost_model=   0.1874650103659759E+02
+ DIAG::cost:cost_prior=   0.6793062641501501E+02
+
+At iterate   72    f=  1.48752D+02    |proj g|=  2.94180D+00
+ DIAG::cost_bw:cost_obs=     0.6193547675974913E+02
+ DIAG::cost_bw:cost_model=   0.1852729111457727E+02
+ DIAG::cost_bw:cost_prior=   0.6817135969479266E+02
+ DIAG::cost:cost_obs=     0.6193547675974913E+02
+ DIAG::cost:cost_model=   0.1852729111457727E+02
+ DIAG::cost:cost_prior=   0.6817135969479266E+02
+
+At iterate   73    f=  1.48634D+02    |proj g|=  1.41372D+00
+ DIAG::cost_bw:cost_obs=     0.6193615291489404E+02
+ DIAG::cost_bw:cost_model=   0.1837525235751977E+02
+ DIAG::cost_bw:cost_prior=   0.6827254123043116E+02
+ DIAG::cost:cost_obs=     0.6193615291489404E+02
+ DIAG::cost:cost_model=   0.1837525235751977E+02
+ DIAG::cost:cost_prior=   0.6827254123043116E+02
+
+At iterate   74    f=  1.48584D+02    |proj g|=  1.16140D+00
+ DIAG::cost_bw:cost_obs=     0.6193460834013465E+02
+ DIAG::cost_bw:cost_model=   0.1823777914584893E+02
+ DIAG::cost_bw:cost_prior=   0.6834072316570116E+02
+ DIAG::cost:cost_obs=     0.6193460834013465E+02
+ DIAG::cost:cost_model=   0.1823777914584893E+02
+ DIAG::cost:cost_prior=   0.6834072316570116E+02
+
+At iterate   75    f=  1.48513D+02    |proj g|=  1.32837D+00
+ DIAG::cost_bw:cost_obs=     0.6178643294488671E+02
+ DIAG::cost_bw:cost_model=   0.1816226337227024E+02
+ DIAG::cost_bw:cost_prior=   0.6844923110506127E+02
+ DIAG::cost:cost_obs=     0.6178643294488671E+02
+ DIAG::cost:cost_model=   0.1816226337227024E+02
+ DIAG::cost:cost_prior=   0.6844923110506127E+02
+
+At iterate   76    f=  1.48398D+02    |proj g|=  9.92910D-01
+
+           * * *
+
+Tit   = total number of iterations
+Tnf   = total number of function evaluations
+Tnint = total number of segments explored during Cauchy searches
+Skip  = number of BFGS updates skipped
+Nact  = number of active bounds at final generalized Cauchy point
+Projg = norm of the final projected gradient
+F     = final function value
+
+           * * *
+
+   N    Tit     Tnf  Tnint  Skip  Nact     Projg        F
+  235     76     86    212     0     2   9.929D-01   1.484D+02
+  F =   148.39792742221823     
+
+CONVERGENCE: NORM_OF_PROJECTED_GRADIENT_<=_PGTOL            
+
+ Cauchy                time 2.000E-03 seconds.
+ Subspace minimization time 2.000E-03 seconds.
+ Line search           time 6.540E+02 seconds.
+
+ Total User time 6.615E+02 seconds.
+
+ INFO::runopti:...optimiser finished.
+ 
+        i                Prior           Posterior          Change [%]
+ 
+        1         0.100000E+00        0.231523E-01           -76.84769
+        2         0.123140E-01        0.849610E+00          6799.56801
+        3         0.424325E-02        0.396942E-02            -6.45324
+        4         0.357541E+00        0.790123E-01           -77.90117
+        5         0.137570E-01        0.859616E+00          6148.59519
+        6         0.459816E-02        0.471654E-02             2.57437
+        7         0.352973E+00        0.470339E-01           -86.67494
+        8         0.181434E-01        0.873395E+00          4713.84084
+        9         0.571051E-02        0.525758E-02            -7.93155
+       10         0.347663E+00        0.201527E+00           -42.03370
+       11         0.230250E-01        0.893831E+00          3782.00796
+       12         0.701232E-02        0.774768E-02            10.48668
+       13         0.341977E+00        0.175843E+00           -48.58035
+       14         0.241563E-01        0.919674E+00          3707.17310
+       15         0.713460E-02        0.719976E-02             0.91339
+       16         0.339595E+00        0.386799E-01           -88.61000
+       17         0.247863E-01        0.947305E+00          3721.89304
+       18         0.720105E-02        0.660362E-02            -8.29643
+       19         0.346728E+00        0.952575E-01           -72.52672
+       20         0.348700E-01        0.975233E+00          2696.77133
+       21         0.991955E-02        0.100909E-01             1.72759
+       22         0.353299E+00        0.152166E+00           -56.93007
+       23         0.441327E-01        0.101306E+01          2195.49132
+       24         0.120428E-01        0.121376E-01             0.78746
+       25         0.347753E+00        0.119520E+00           -65.63081
+       26         0.485221E-01        0.104747E+01          2058.74106
+       27         0.129968E-01        0.131779E-01             1.39302
+       28         0.348924E+00        0.114454E+00           -67.19795
+       29         0.524306E-01        0.109025E+01          1979.42458
+       30         0.134109E-01        0.125023E-01            -6.77457
+       31         0.345354E+00        0.101026E+00           -70.74702
+       32         0.543993E-01        0.113539E+01          1987.13693
+       33         0.136279E-01        0.151495E-01            11.16567
+       34         0.343127E+00        0.452234E-01           -86.82022
+       35         0.563609E-01        0.119072E+01          2012.66628
+       36         0.138427E-01        0.540886E-01           290.73627
+       37         0.346668E+00        0.735770E-01           -78.77596
+       38         0.649718E-01        0.121937E+01          1776.77313
+       39         0.159656E-01        0.173711E-01             8.80285
+       40         0.342955E+00        0.451362E-01           -86.83903
+       41         0.707025E-01        0.126385E+01          1687.56014
+       42         0.171600E-01        0.169367E-01            -1.30113
+       43         0.342849E+00        0.558125E-01           -83.72098
+       44         0.841624E-01        0.130953E+01          1455.95786
+       45         0.199601E-01        0.199980E-01             0.19017
+       46         0.333038E+00        0.672699E-01           -79.80110
+       47         0.109136E+00        0.136940E+01          1154.76411
+       48         0.247971E-01        0.254571E-01             2.66190
+       49         0.312644E+00        0.129997E+00           -58.42015
+       50         0.122422E+00        0.143082E+01          1068.75905
+       51         0.277510E-01        0.277081E-01            -0.15434
+       52         0.309221E+00        0.147084E+00           -52.43396
+       53         0.150876E+00        0.150460E+01           897.24448
+       54         0.338387E-01        0.331033E-01            -2.17307
+       55         0.301909E+00        0.786158E-01           -73.96042
+       56         0.167931E+00        0.158111E+01           841.52645
+       57         0.374647E-01        0.374347E-01            -0.08001
+       58         0.297822E+00        0.450252E-01           -84.88181
+       59         0.194056E+00        0.166280E+01           756.86639
+       60         0.418298E-01        0.412416E-01            -1.40628
+       61         0.293420E+00        0.767938E-01           -73.82808
+       62         0.209858E+00        0.175390E+01           735.75541
+       63         0.445428E-01        0.448413E-01             0.67026
+       64         0.286674E+00        0.465769E-01           -83.75264
+       65         0.246718E+00        0.184828E+01           649.14569
+       66         0.511293E-01        0.515828E-01             0.88703
+       67         0.273636E+00        0.709126E-01           -74.08504
+       68         0.315573E+00        0.195762E+01           520.33651
+       69         0.635445E-01        0.652657E-01             2.70867
+       70         0.255697E+00        0.977230E-01           -61.78176
+       71         0.348822E+00        0.207050E+01           493.56951
+       72         0.701010E-01        0.680034E-01            -2.99223
+       73         0.255179E+00        0.150171E+00           -41.15060
+       74         0.404974E+00        0.220120E+01           443.54132
+       75         0.794734E-01        0.747093E-01            -5.99459
+       76         0.257360E+00        0.209922E+00           -18.43231
+       77         0.435873E+00        0.233430E+01           435.54512
+       78         0.849324E-01        0.888010E-01             4.55500
+       79         0.260618E+00        0.144132E+00           -44.69601
+       80         0.493118E+00        0.248014E+01           402.95154
+       81         0.938362E-01        0.958455E-01             2.14124
+       82         0.252598E+00        0.864613E-01           -65.77116
+       83         0.522584E+00        0.262785E+01           402.85616
+       84         0.976442E-01        0.956556E-01            -2.03651
+       85         0.245702E+00        0.136817E+00           -44.31592
+       86         0.556274E+00        0.278788E+01           401.17097
+       87         0.102348E+00        0.980918E-01            -4.15860
+       88         0.238892E+00        0.171146E+00           -28.35817
+       89         0.596008E+00        0.283469E+01           375.61319
+       90         0.108636E+00        0.110708E+00             1.90744
+       91         0.235695E+00        0.165535E+00           -29.76743
+       92         0.731591E+00        0.289422E+01           295.60713
+       93         0.131707E+00        0.131805E+00             0.07441
+       94         0.226796E+00        0.197981E+00           -12.70521
+       95         0.772941E+00        0.296534E+01           283.64312
+       96         0.137942E+00        0.138792E+00             0.61632
+       97         0.225348E+00        0.197579E+00           -12.32260
+       98         0.877373E+00        0.304723E+01           247.31334
+       99         0.155593E+00        0.152027E+00            -2.29147
+      100         0.222617E+00        0.193197E+00           -13.21534
+      101         0.932739E+00        0.313243E+01           235.83097
+      102         0.164872E+00        0.168912E+00             2.44985
+      103         0.232103E+00        0.153523E+00           -33.85575
+      104         0.103091E+01        0.322734E+01           213.05881
+      105         0.180274E+00        0.182458E+00             1.21171
+      106         0.244426E+00        0.145992E+00           -40.27148
+      107         0.108118E+01        0.331783E+01           206.86998
+      108         0.188150E+00        0.188359E+00             0.11107
+      109         0.243668E+00        0.159208E+00           -34.66180
+      110         0.118494E+01        0.342161E+01           188.75726
+      111         0.204601E+00        0.206167E+00             0.76511
+      112         0.250179E+00        0.174391E+00           -30.29363
+      113         0.137109E+01        0.352786E+01           157.30306
+      114         0.236957E+00        0.236400E+00            -0.23474
+      115         0.246779E+00        0.969100E-01           -60.73004
+      116         0.143644E+01        0.364845E+01           153.99238
+      117         0.248157E+00        0.249789E+00             0.65766
+      118         0.244743E+00        0.839661E-01           -65.69213
+      119         0.158390E+01        0.377620E+01           138.41195
+      120         0.274241E+00        0.273910E+00            -0.12069
+      121         0.245864E+00        0.140551E+00           -42.83382
+      122         0.164780E+01        0.391611E+01           137.65647
+      123         0.284550E+00        0.287353E+00             0.98515
+      124         0.261356E+00        0.127601E+00           -51.17749
+      125         0.178610E+01        0.406225E+01           127.43748
+      126         0.308740E+00        0.308995E+00             0.08248
+      127         0.272274E+00        0.136418E+00           -49.89684
+      128         0.185356E+01        0.421510E+01           127.40575
+      129         0.320080E+00        0.324028E+00             1.23337
+      130         0.271983E+00        0.122661E+00           -54.90120
+      131         0.185356E+01        0.437194E+01           135.86738
+      132         0.320080E+00        0.324095E+00             1.25439
+      133         0.271983E+00        0.141933E+00           -47.81562
+      134         0.199266E+01        0.444530E+01           123.08338
+      135         0.344369E+00        0.346546E+00             0.63209
+      136         0.297883E+00        0.135996E+00           -54.34591
+      137         0.219677E+01        0.452959E+01           106.19338
+      138         0.380658E+00        0.376758E+00            -1.02442
+      139         0.280487E+00        0.575899E-01           -79.46790
+      140         0.226628E+01        0.462126E+01           103.91387
+      141         0.393085E+00        0.389881E+00            -0.81501
+      142         0.282672E+00        0.509769E-01           -81.96604
+      143         0.239786E+01        0.472481E+01            97.04258
+      144         0.417248E+00        0.416675E+00            -0.13733
+      145         0.275133E+00        0.734270E-01           -73.31218
+      146         0.252825E+01        0.483797E+01            91.35660
+      147         0.442140E+00        0.442595E+00             0.10294
+      148         0.309975E+00        0.760453E-01           -75.46730
+      149         0.258017E+01        0.488479E+01            89.32009
+      150         0.452296E+00        0.448256E+00            -0.89327
+      151         0.323681E+00        0.515806E-01           -84.06436
+      152         0.263017E+01        0.494210E+01            87.90055
+      153         0.462467E+00        0.458865E+00            -0.77893
+      154         0.328420E+00        0.768805E-01           -76.59082
+      155         0.273449E+01        0.500829E+01            83.15266
+      156         0.484750E+00        0.484569E+00            -0.03726
+      157         0.315962E+00        0.813998E-01           -74.23751
+      158         0.288216E+01        0.508996E+01            76.60253
+      159         0.515529E+00        0.515426E+00            -0.01988
+      160         0.311549E+00        0.974784E-01           -68.71170
+      161         0.288216E+01        0.518467E+01            79.88872
+      162         0.515529E+00        0.504517E+00            -2.13591
+      163         0.311549E+00        0.980470E-01           -68.52919
+      164         0.290296E+01        0.517377E+01            78.22376
+      165         0.513875E+00        0.516726E+00             0.55465
+      166         0.301204E+00        0.882094E-01           -70.71445
+      167         0.299586E+01        0.517667E+01            72.79414
+      168         0.534161E+00        0.537398E+00             0.60603
+      169         0.302519E+00        0.126544E+00           -58.16997
+      170         0.306439E+01        0.517570E+01            68.89801
+      171         0.547509E+00        0.549718E+00             0.40358
+      172         0.321568E+00        0.758235E-01           -76.42066
+      173         0.306892E+01        0.518218E+01            68.86017
+      174         0.549337E+00        0.544892E+00            -0.80923
+      175         0.328723E+00        0.114512E+00           -65.16456
+      176         0.309887E+01        0.518902E+01            67.44893
+      177         0.563161E+00        0.564315E+00             0.20482
+      178         0.319140E+00        0.112342E+00           -64.79838
+      179         0.311371E+01        0.519953E+01            66.98837
+      180         0.570552E+00        0.558017E+00            -2.19703
+      181         0.316023E+00        0.244204E+00           -22.72585
+      182         0.312669E+01        0.508306E+01            62.56982
+      183         0.584056E+00        0.582672E+00            -0.23684
+      184         0.316184E+00        0.233093E+00           -26.27946
+      185         0.311881E+01        0.497523E+01            59.52326
+      186         0.587412E+00        0.594507E+00             1.20786
+      187         0.320726E+00        0.216661E+00           -32.44661
+      188         0.304989E+01        0.486906E+01            59.64695
+      189         0.581863E+00        0.577579E+00            -0.73631
+      190         0.313160E+00        0.322690E+00             3.04307
+      191         0.296607E+01        0.477080E+01            60.84582
+      192         0.582892E+00        0.594729E+00             2.03069
+      193         0.300396E+00        0.199051E+00           -33.73707
+      194         0.291964E+01        0.467078E+01            59.97828
+      195         0.574196E+00        0.564120E+00            -1.75487
+      196         0.299439E+00        0.249367E+00           -16.72205
+      197         0.283392E+01        0.458338E+01            61.73297
+      198         0.570805E+00        0.547534E+00            -4.07674
+      199         0.302894E+00        0.500000E+00            65.07412
+      200         0.269074E+01        0.451645E+01            67.85170
+      201         0.548079E+00        0.541037E+00            -1.28491
+      202         0.295987E+00        0.290666E+00            -1.79784
+      203         0.261584E+01        0.440410E+01            68.36314
+      204         0.538977E+00        0.551366E+00             2.29857
+      205         0.287908E+00        0.286167E+00            -0.60485
+      206         0.256371E+01        0.428312E+01            67.06735
+      207         0.539338E+00        0.520487E+00            -3.49520
+      208         0.291769E+00        0.341874E+00            17.17292
+      209         0.241034E+01        0.418443E+01            73.60346
+      210         0.521650E+00        0.501515E+00            -3.85998
+      211         0.311384E+00        0.500000E+00            60.57324
+      212         0.219976E+01        0.409866E+01            86.32288
+      213         0.494039E+00        0.508224E+00             2.87123
+      214         0.296406E+00        0.227380E+00           -23.28787
+      215         0.214689E+01        0.401416E+01            86.97519
+      216         0.494246E+00        0.474439E+00            -4.00766
+      217         0.300095E+00        0.302293E+00             0.73264
+      218         0.191997E+01        0.394081E+01           105.25382
+      219         0.435975E+00        0.431288E+00            -1.07491
+      220         0.291322E+00        0.356043E+00            22.21598
+      221         0.191997E+01        0.388119E+01           102.14842
+      222         0.435975E+00        0.431134E+00            -1.11032
+      223         0.291322E+00        0.349754E+00            20.05746
+      224         0.173733E+01        0.395463E+01           127.62690
+      225         0.389565E+00        0.349953E+00           -10.16827
+      226         0.290998E+00        0.302336E+00             3.89623
+      227         0.162377E+01        0.391210E+01           140.92716
+      228         0.363741E+00        0.368761E+00             1.38018
+      229         0.297839E+00        0.309949E+00             4.06591
+      230         0.155984E+01        0.388096E+01           148.80547
+      231         0.350380E+00        0.337813E+00            -3.58682
+      232         0.306192E+00        0.348650E+00            13.86632
+      233         0.147848E+01        0.386740E+01           161.58007
+      234         0.345579E+00        0.345701E+00             0.03511
+      235         0.296879E+00        0.291918E+00            -1.67113
+ writing final control vector to x.b
+ writing prior uncertainty to sx.b

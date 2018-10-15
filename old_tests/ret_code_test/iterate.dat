@@ -1,0 +1,98 @@
+RUNNING THE L-BFGS-B CODE
+
+it    = iteration number
+nf    = number of function evaluations
+nseg  = number of segments explored during the Cauchy search
+nact  = number of active bounds at the generalized Cauchy point
+sub   = manner in which the subspace minimization terminated:
+        con = converged, bnd = a bound was reached
+itls  = number of iterations performed in the line search
+stepl = step length used
+tstep = norm of the displacement (total step)
+projg = norm of the projected gradient
+f     = function value
+
+           * * *
+
+Machine precision = 2.220D-16
+ N =          235     M =            5
+
+   it   nf  nseg  nact  sub  itls  stepl    tstep     projg        f
+    0    1     -     -   -     -     -        -     7.800D+01  2.887D+04
+    1    2   156   155  ---    0  1.0D+00  1.1D+02  7.809D+01  2.428D+04
+    2    3     1     1  bnd    0  1.0D+00  2.6D+01  6.524D+01  8.459D+03
+    3    4     1     0  bnd    0  1.0D+00  1.3D+01  5.680D+01  6.528D+03
+    4    5     1     0  bnd    0  1.0D+00  2.0D+01  4.386D+01  5.144D+03
+    5    6     3     2  bnd    0  1.0D+00  2.0D+01  3.123D+01  4.425D+03
+    6    7     1     4  bnd    0  1.0D+00  8.8D+00  2.570D+01  4.018D+03
+    7    8     1     1  con    0  1.0D+00  4.4D+00  2.795D+01  3.863D+03
+    8    9     1     0  bnd    0  1.0D+00  6.4D+00  2.294D+01  3.583D+03
+    9   10     1     0  bnd    0  1.0D+00  6.9D+00  1.698D+01  3.424D+03
+   10   11     2     1  bnd    0  1.0D+00  5.7D+00  1.017D+01  3.343D+03
+   11   12     1     2  con    0  1.0D+00  3.5D+00  1.624D+01  3.268D+03
+   12   13     1     1  bnd    0  1.0D+00  2.5D+00  1.444D+01  3.174D+03
+   13   15     3     3  bnd    1  3.8D-01  2.4D+00  1.057D+01  3.122D+03
+   14   17     3     3  bnd    1  4.7D-01  1.9D+00  8.972D+00  3.073D+03
+   15   18     3     3  bnd    0  1.0D+00  1.9D+00  8.919D+00  3.030D+03
+   16   19     1     4  bnd    0  1.0D+00  1.4D+00  8.739D+00  2.989D+03
+   17   20     1     6  bnd    0  1.0D+00  1.7D+00  8.899D+00  2.952D+03
+   18   21     2     8  bnd    0  1.0D+00  2.1D+00  8.518D+00  2.917D+03
+   19   22     1    10  bnd    0  1.0D+00  1.5D+00  8.924D+00  2.886D+03
+   20   23     1    10  bnd    0  1.0D+00  2.2D+00  8.941D+00  2.845D+03
+   21   24     1    16  bnd    0  1.0D+00  2.0D+00  8.949D+00  2.793D+03
+   22   25     1    18  bnd    0  1.0D+00  2.5D+00  8.953D+00  2.735D+03
+   23   26     1    25  bnd    0  1.0D+00  7.5D-01  8.970D+00  2.707D+03
+   24   27     1    26  bnd    0  1.0D+00  2.6D-01  8.960D+00  2.687D+03
+   25   28     1    26  bnd    0  1.0D+00  2.3D-03  8.960D+00  2.686D+03
+   26   30     1    26  bnd    1  1.3D-01  1.8D+00  8.998D+00  2.657D+03
+   27   31     3    26  bnd    0  1.0D+00  2.0D+00  8.858D+00  2.506D+03
+   28   32     1    31  bnd    0  1.0D+00  9.8D-01  8.946D+00  2.470D+03
+   29   33     1    30  bnd    0  1.0D+00  1.5D+00  8.703D+00  2.409D+03
+   30   34     2    30  bnd    0  1.0D+00  5.4D-01  8.592D+00  2.386D+03
+   31   35     2    31  bnd    0  1.0D+00  1.2D+00  8.158D+00  2.345D+03
+   32   36     2    33  bnd    0  1.0D+00  1.4D+00  8.734D+00  2.329D+03
+   33   37     1    33  bnd    0  1.0D+00  5.5D-01  8.683D+00  2.309D+03
+   34   38     3    36  bnd    0  1.0D+00  4.7D-01  3.533D+00  2.300D+03
+   35   39     2    35  bnd    0  1.0D+00  7.1D-01  8.903D+00  2.293D+03
+   36   40     2    39  bnd    0  1.0D+00  3.5D-01  3.337D+00  2.292D+03
+   37   41     1    37  con    0  1.0D+00  1.7D-01  3.851D+00  2.291D+03
+   38   42     1    37  bnd    0  1.0D+00  5.2D-01  7.035D+00  2.288D+03
+   39   43     1    37  bnd    0  1.0D+00  5.2D-01  5.804D+00  2.288D+03
+   40   44     1    36  con    0  1.0D+00  8.6D-01  7.039D+00  2.286D+03
+   41   45     1    34  bnd    0  1.0D+00  5.2D-01  8.393D+00  2.284D+03
+   42   46     1    32  con    0  1.0D+00  4.1D-01  8.968D+00  2.281D+03
+   43   47     1    31  bnd    0  1.0D+00  1.7D+00  8.998D+00  2.276D+03
+   44   48     1    23  bnd    0  1.0D+00  5.3D-01  8.998D+00  2.268D+03
+   45   49     1    22  bnd    0  1.0D+00  4.9D-01  8.936D+00  2.257D+03
+   46   50     1    22  bnd    0  1.0D+00  8.5D-01  8.950D+00  2.244D+03
+   47   51     1    23  con    0  1.0D+00  7.5D-01  8.796D+00  2.234D+03
+   48   52     1    23  con    0  1.0D+00  5.0D-01  8.642D+00  2.227D+03
+   49   53     1    23  con    0  1.0D+00  7.6D-01  6.308D+00  2.219D+03
+   50   54     1    22  con    0  1.0D+00  5.1D-01  4.958D+00  2.215D+03
+   51   55     1    22  con    0  1.0D+00  3.8D-01  3.314D+00  2.214D+03
+   52   56     2    23  con    0  1.0D+00  3.1D-01  2.680D+00  2.212D+03
+   53   57     1    23  con    0  1.0D+00  2.7D-01  3.378D+00  2.210D+03
+   54   58     1    23  con    0  1.0D+00  3.4D-01  1.995D+00  2.209D+03
+   55   59     1    23  con    0  1.0D+00  6.6D-02  1.021D+00  2.209D+03
+   56   60     1    23  con    0  1.0D+00  6.4D-02  2.233D+00  2.208D+03
+   57   61     1    23  con    0  1.0D+00  1.1D-01  3.038D+00  2.208D+03
+   58   62     1    23  con    0  1.0D+00  2.1D-01  2.951D+00  2.207D+03
+   59   63     1    23  con    0  1.0D+00  3.3D-01  6.846D+00  2.207D+03
+   60   64     1    22  bnd    0  1.0D+00  9.3D-02  9.305D-01  2.205D+03
+   61   65     1    23  con    0  1.0D+00  7.3D-02  1.500D+00  2.205D+03
+   62   66     1    23  con    0  1.0D+00  1.1D-01  1.319D+00  2.204D+03
+   63   71     1    23  con    4  4.7D-01  7.5D-02  1.256D+00  2.204D+03
+   64  109     4    26  ---   17  6.0D-04  1.5D-03  1.067D+00  2.204D+03
+   65  123     1    23  con   13  5.1D-03  1.7D-04  1.057D+00  2.204D+03
+   66  141     1    23  con   17  8.4D-04  4.2D-05  1.056D+00  2.204D+03
+   67  181     3    25  con   19  1.2D-06  2.8D-06      -          -
+
+ABNORMAL_TERMINATION_IN_LNSRCH                              
+
+ Line search cannot locate an adequate point after 20 function
+  and gradient evaluations.  Previous x, f and g restored.
+ Possible causes: 1 error in function or gradient evaluation;
+                  2 rounding error dominate computation.
+
+ Total User time 1.291E+03 seconds.
+

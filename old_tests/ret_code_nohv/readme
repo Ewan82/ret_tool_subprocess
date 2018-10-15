@@ -1,0 +1,10 @@
+readme for prototype retrieval tool developed within the ESA S3 - SENTINEL SYNERGY STUDY
+by LMU, The Inversion Lab, University College London, and University of Reading.
+
+documentation is provided in the project's deliverable report D5
+
+enter 'make' for a list of targets
+
+to complete the installation use the target 'make setup' 
+
+list of predefined use cases is provided by 'make x_help'
