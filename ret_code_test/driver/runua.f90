@@ -1,11 +1,12 @@
 program runua
   implicit none
-  integer :: n, mf, ns, m
+  integer :: n, mf, mjac
   integer :: ierr, i, l, k
   real(kind=8), allocatable :: x(:), sx(:), c(:,:)
+  integer :: iostat
   logical :: exist
   logical :: ldebug = .false., diag = .true.
-  logical :: tstflg, succeed
+  logical :: tstflg
 
   !-------------------
   !-- initialise retrieval procedure
@@ -17,7 +18,7 @@ program runua
   !-- init model
   write(*, '(a)') ' INFO::runua:calling initf...'
   call initf(n, mf)
-  m = mf + 2*n
+  mjac = mf + 2*n
   write(*, '(a)') ' INFO::runua:...done.'
   if( ldebug ) then
      write(*, '(a,6(a,i3,1x))') ' DEBUG::runua:initf yields:',&
@@ -34,8 +35,18 @@ program runua
   inquire(FILE='x.b',EXIST=exist)
   if(exist) then
      write(*, '(a)') ' INFO::runua:reading control vector from file ***'//'x.b'//'***'
-     open (unit=1, file='x.b', form='unformatted')
-     read (1) x
+     open (unit=1, file='x.b', form='unformatted', iostat=iostat)
+     if( iostat.ne.0 ) then
+        write(*, '(a)') ' FATAL::runua:'//&
+             'failed opening existing file ***x.b***'
+        stop
+     endif
+     read(1, iostat=iostat) x
+     if( iostat.ne.0 ) then
+        write(*, '(a)') ' FATAL::runua:'//&
+             'failed reading control vector from file ***x.b***'
+        stop
+     endif
      close (1)
      write(*,'(a)') ' INFO::runua:...done'
   endif
@@ -47,7 +58,7 @@ program runua
   endif
 
   !-- uncertainty analysis
-  call ua(m, n, x, c, ldebug, diag, ierr) 
+  call ua(mjac, n, x, c, ldebug, diag, ierr) 
   call wsigma(6,n,sx,c)
   call wsigma(1,n,sx,c)
 
@@ -55,17 +66,19 @@ program runua
   call finishdf(n, x, c)
 
 
-  write ( *, '(a)' ) ' '
-  write ( *, '(a40)' ) 'Correlations of Posterior Uncertainty'
-  write ( *, '(9x,18a5)' ) '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18'
   do l = 1, n
      do k = 1, n
         c(k,l) = c(k,l)/sqrt(c(k,k))/sqrt(c(l,l))
      enddo
   enddo
-  do i = 1, n
-     ! print '(i9x,18(f4.2x))', i, c(i,:)
-  enddo  
+  if( ldebug ) then
+     write ( *, '(a)' ) ' '
+     write ( *, '(a40)' ) 'Correlations of Posterior Uncertainty'
+     write ( *, '(9x,18a5)' ) '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18'
+     do i = 1, n
+        print '(i9x,18(f4.2x))', i, c(i,:)
+     enddo
+  endif
 
   write ( *, '(a)' ) ' '
   write ( *, '(a40)' ) 'Extreme off diagonal correlations'

@@ -36,22 +36,22 @@ end subroutine optim_is_prior_term_enabled
 
 
 subroutine optim_enable_state_term()
-  use mo_retrieval, only:retr_use_state_term
-  retr_use_state_term = .true.
+  use mo_retrieval, only:retr_use_model_term
+  retr_use_model_term = .true.
 end subroutine optim_enable_state_term
 
 
 subroutine optim_disable_state_term()
-  use mo_retrieval, only:retr_use_state_term
-  retr_use_state_term = .false.
+  use mo_retrieval, only:retr_use_model_term
+  retr_use_model_term = .false.
 end subroutine optim_disable_state_term
 
 
 subroutine optim_is_state_term_enabled(flag)
-  use mo_retrieval, only:retr_use_state_term
+  use mo_retrieval, only:retr_use_model_term
   implicit none
   logical, intent(out) :: flag
-  flag = retr_use_state_term
+  flag = retr_use_model_term
 end subroutine optim_is_state_term_enabled
 
 
@@ -225,7 +225,7 @@ subroutine retrieval_dump_ctl()
   use mo_retrieval
   implicit none
   write(*,'(a,1x,l1)') ' INFO::use_prior_term:',retr_use_prior_term
-  write(*,'(a,1x,l1)') ' INFO::use_state_term:',retr_use_state_term
+  write(*,'(a,1x,l1)') ' INFO::use_state_term:',retr_use_model_term
   write(*,'(a,1x,e10.5)') ' INFO::gradient_tolerance:',gradient_tol
   write(*,'(a,1x,e10.5)') ' INFO::priopr_pert:',prior_pert
 end subroutine retrieval_dump_ctl

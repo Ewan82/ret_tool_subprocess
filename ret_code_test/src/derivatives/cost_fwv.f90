@@ -18,7 +18,7 @@
 !> \authors The Inversion Lab
 !> \date  January 2018
 SUBROUTINE COST_FWV(n, x, x_fwv, m, f, f_fwv, nbdirs)
-  USE MO_RETRIEVAL, ONLY : retr_use_prior_term, retr_use_state_term
+  USE MO_RETRIEVAL, ONLY : retr_use_prior_term, retr_use_model_term
   USE DIFFSIZES
 !  Hint: nbdirsmax should be the maximum number of differentiation directions
   IMPLICIT NONE
@@ -40,12 +40,10 @@ SUBROUTINE COST_FWV(n, x, x_fwv, m, f, f_fwv, nbdirs)
   REAL(kind=8) :: priordiff_fwv(nbdirsmax, n), costprior_fwv(nbdirsmax)
   REAL(kind=8) :: modeldiff(n), costmodel
   REAL(kind=8) :: modeldiff_fwv(nbdirsmax, n), costmodel_fwv(nbdirsmax)
-  REAL(kind=8) :: xphys(n)
-  REAL(kind=8) :: xphys_fwv(nbdirsmax, n)
   LOGICAL :: ldebug
 ! externals
-  EXTERNAL X2P, STATE_MODEL, RESIDUAL_PRIOR
-  EXTERNAL X2P_FWV, RESIDUAL_PRIOR_FWV
+  EXTERNAL STATE_MODEL, RESIDUAL_PRIOR
+  EXTERNAL RESIDUAL_PRIOR_FWV
   INTRINSIC SUM
   REAL(kind=8), DIMENSION(m) :: arg1
   REAL(kind=8), DIMENSION(nbdirsmax, m) :: arg1_fwv
@@ -55,10 +53,8 @@ SUBROUTINE COST_FWV(n, x, x_fwv, m, f, f_fwv, nbdirs)
   INTEGER :: nbdirs
 !-- set flags
   ldebug = .true.
-!-- control vector in physical units
-  CALL X2P_FWV(n, x, x_fwv, xphys, xphys_fwv, nbdirs)
 !-- compute misfit
-  CALL MISFIT_FWV(n, xphys, xphys_fwv, m, obsdiff, obsdiff_fwv, nbdirs)
+  CALL MISFIT_FWV(n, x, x_fwv, m, obsdiff, obsdiff_fwv, nbdirs)
   DO nd=1,nbdirs
     arg1_fwv(nd, :) = 2*obsdiff*obsdiff_fwv(nd, :)
     costobs_fwv(nd) = 0.5_8*SUM(arg1_fwv(nd, :))
@@ -67,8 +63,8 @@ SUBROUTINE COST_FWV(n, x, x_fwv, m, f, f_fwv, nbdirs)
   costobs = 0.5_8*SUM(arg1(:))
   IF (ldebug) WRITE(*, '(a,e25.16)') ' DIAG::cost:cost_obs=  ', costobs
 !-- compute state model differences
-  IF (retr_use_state_term) THEN
-    CALL H_M_FWV(n, xphys, xphys_fwv, modeldiff, modeldiff_fwv, nbdirs)
+  IF (retr_use_model_term) THEN
+    CALL H_M_FWV(n, x, x_fwv, modeldiff, modeldiff_fwv, nbdirs)
     DO nd=1,nbdirs
       arg10_fwv(nd, :) = 2*modeldiff*modeldiff_fwv(nd, :)
       costmodel_fwv(nd) = 0.5_8*SUM(arg10_fwv(nd, :))
@@ -108,37 +104,6 @@ SUBROUTINE COST_FWV(n, x, x_fwv, m, f, f_fwv, nbdirs)
   f = costobs + costmodel + costprior
 END SUBROUTINE COST_FWV
 
-!  Differentiation of x2p in forward (tangent) mode (with options messagesInFile noinclude noISIZE r8 multiDirectional):
-!   variations   of useful results: xp
-!   with respect to varying inputs: x
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!> \file mapping.f90
-!> \brief mapping of 1D control vector to physical variables
-!> \authors The Inversion Lab (Michael Vossbeck, Thomas Kaminski) 
-!> \date  April 2018
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-SUBROUTINE X2P_FWV(n, x, x_fwv, xp, xp_fwv, nbdirs)
-  USE DIFFSIZES
-!  Hint: nbdirsmax should be the maximum number of differentiation directions
-  IMPLICIT NONE
-! arguments
-  INTEGER, INTENT(IN) :: n
-  REAL(kind=8), INTENT(IN) :: x(n)
-  REAL(kind=8), INTENT(IN) :: x_fwv(nbdirsmax, n)
-  REAL(kind=8), INTENT(OUT) :: xp(n)
-  REAL(kind=8), INTENT(OUT) :: xp_fwv(nbdirsmax, n)
-! local decls
-  REAL(kind=8) :: sx(n), pr(n)
-  EXTERNAL GETPRIOR
-  INTEGER :: nd
-  INTEGER :: nbdirs
-  CALL GETPRIOR(n, pr, sx)
-  DO nd=1,nbdirs
-    xp_fwv(nd, :) = sx*x_fwv(nd, :)
-  END DO
-  xp = x*sx
-END SUBROUTINE X2P_FWV
-
 !  Differentiation of h_m in forward (tangent) mode (with options messagesInFile noinclude noISIZE r8 multiDirectional):
 !   variations   of useful results: statediff
 !   with respect to varying inputs: x
@@ -171,8 +136,8 @@ SUBROUTINE H_M_FWV(n, x, x_fwv, statediff, statediff_fwv, nbdirs)
   REAL(kind=8), INTENT(OUT) :: statediff_fwv(nbdirsmax, n)
 ! local decls
   INTEGER :: nc, ns, np
-  REAL(kind=8) :: xm(n)
-  REAL(kind=8) :: xm_fwv(nbdirsmax, n)
+  REAL(kind=8) :: xm(n), xphys(n)
+  REAL(kind=8) :: xm_fwv(nbdirsmax, n), xphys_fwv(nbdirsmax, n)
   INTEGER :: i, j
   INTEGER :: nd
   INTEGER :: nbdirs
@@ -193,6 +158,8 @@ SUBROUTINE H_M_FWV(n, x, x_fwv, statediff, statediff_fwv, nbdirs)
     statediff(1:np) = 0._8
 !these are *not* used below
     xm(1:np) = 0._8
+!-- control vector in physical units
+    CALL X2P_FWV(n, x, x_fwv, xphys, xphys_fwv, nbdirs)
     DO nd=1,nbdirs
       xm_fwv(nd, :) = 0.0_8
     END DO
@@ -204,10 +171,10 @@ SUBROUTINE H_M_FWV(n, x, x_fwv, statediff, statediff_fwv, nbdirs)
       xm(np+i) = offset_model(i)
       DO j=1,ns
         DO nd=1,nbdirs
-          xm_fwv(nd, np+i) = xm_fwv(nd, np+i) + mat_model(i, j)*x_fwv(nd&
-&           , np+j)
+          xm_fwv(nd, np+i) = xm_fwv(nd, np+i) + mat_model(i, j)*&
+&           xphys_fwv(nd, np+j)
         END DO
-        xm(np+i) = xm(np+i) + mat_model(i, j)*x(np+j)
+        xm(np+i) = xm(np+i) + mat_model(i, j)*xphys(np+j)
       END DO
     END DO
     DO nd=1,nbdirs
@@ -216,10 +183,10 @@ SUBROUTINE H_M_FWV(n, x, x_fwv, statediff, statediff_fwv, nbdirs)
 !--
     DO i=1,ns
       DO nd=1,nbdirs
-        statediff_fwv(nd, np+i) = (xm_fwv(nd, np+i)-x_fwv(nd, np+i))/&
-&         unc_model(i)
+        statediff_fwv(nd, np+i) = (xm_fwv(nd, np+i)-xphys_fwv(nd, np+i))&
+&         /unc_model(i)
       END DO
-      statediff(np+i) = (xm(np+i)-x(np+i))/unc_model(i)
+      statediff(np+i) = (xm(np+i)-xphys(np+i))/unc_model(i)
     END DO
   END IF
 END SUBROUTINE H_M_FWV
@@ -255,8 +222,7 @@ END SUBROUTINE H_M_FWV
 !> @param[out] obsdiff misfit vector
 !
 SUBROUTINE MISFIT_FWV(n, x, x_fwv, m, obsdiff, obsdiff_fwv, nbdirs)
-  USE MO_SENSIMUL, ONLY : get_nc_s1, get_nc_s2, get_m_s1, get_m_s2, &
-& sim_fill_value
+  USE MO_SENSIMUL, ONLY : get_m_s1, get_m_s2, sim_fill_value
   USE DIFFSIZES
 !  Hint: nbdirsmax should be the maximum number of differentiation directions
   IMPLICIT NONE
@@ -271,77 +237,142 @@ SUBROUTINE MISFIT_FWV(n, x, x_fwv, m, obsdiff, obsdiff_fwv, nbdirs)
   REAL(kind=8) :: y_fwv(nbdirsmax, m)
   LOGICAL :: succeed
   INTEGER :: nobs_s1, nobs_s2
-  INTEGER :: n_s1, n_s2, m_s1, m_s2
-  INTEGER :: p1, p2
-  REAL(kind=8) :: x_s1(GET_NC_S1()), x_s2(GET_NC_S2())
-  REAL(kind=8) :: x_s1_fwv(nbdirsmax, GET_NC_S1()), x_s2_fwv(nbdirsmax, &
-& GET_NC_S2())
+  INTEGER :: m_s1, m_s2
   INTEGER :: i
 ! externals
-  EXTERNAL SIMULATE_S1, SIMULATE_S2, GETOBS, CONTROL_VECTOR_SPLIT
-  EXTERNAL SIMULATE_S1_FWV, SIMULATE_S2_FWV, CONTROL_VECTOR_SPLIT_FWV
+  EXTERNAL SIMULATE_S1S2, GETOBS
+  EXTERNAL SIMULATE_S1S2_FWV
   INTEGER :: nd
   INTEGER :: nbdirs
+  obsdiff(1:m) = 0._8
 !-- read obs
   CALL GETOBS(m, yobs, syobs, nobs_s1, nobs_s2, succeed)
   IF (.NOT.succeed) THEN
     WRITE(*, '(a)') ' FATAL::misfit:getobs failed, cannot continue.'
     STOP
   ELSE
-    obsdiff(1:m) = 0._8
+!-- run S1+S2 simulation
+    CALL SIMULATE_S1S2_FWV(n, x, x_fwv, m, y, y_fwv, nbdirs)
+    m_s1 = GET_M_S1()
+    m_s2 = GET_M_S2()
+    IF (nobs_s1 .GT. 0) THEN
+      DO nd=1,nbdirs
+        obsdiff_fwv(nd, :) = 0.0_8
+      END DO
+      DO i=1,m_s1
+        IF (yobs(i) .NE. sim_fill_value .AND. y(i) .NE. sim_fill_value) &
+&       THEN
+! TAPENADE: (TC19) Equality test on reals is not reliable
+! TAPENADE: (TC19) Equality test on reals is not reliable
+          DO nd=1,nbdirs
+            obsdiff_fwv(nd, i) = y_fwv(nd, i)/syobs(i)
+          END DO
+          obsdiff(i) = (y(i)-yobs(i))/syobs(i)
+        END IF
+      END DO
+    ELSE
+      DO nd=1,nbdirs
+        obsdiff_fwv(nd, :) = 0.0_8
+      END DO
+    END IF
+    IF (nobs_s2 .GT. 0) THEN
+      DO i=m_s1+1,m_s1+m_s2
+        IF (yobs(i) .NE. sim_fill_value .AND. y(i) .NE. sim_fill_value) &
+&       THEN
+! TAPENADE: (TC19) Equality test on reals is not reliable
+! TAPENADE: (TC19) Equality test on reals is not reliable
+          DO nd=1,nbdirs
+            obsdiff_fwv(nd, i) = y_fwv(nd, i)/syobs(i)
+          END DO
+          obsdiff(i) = (y(i)-yobs(i))/syobs(i)
+        END IF
+      END DO
+    END IF
+  END IF
+END SUBROUTINE MISFIT_FWV
+
+!  Differentiation of simulate_s1s2 in forward (tangent) mode (with options messagesInFile noinclude noISIZE r8 multiDirectional)
+!:
+!   variations   of useful results: y
+!   with respect to varying inputs: x
+!***********************************************************
+!     simulate_s1s2
+!
+!> @brief Implementation of the combined S1 and S2 observation operator.
+!>        Computes backscatter values (VH,VV) and top-of-canopy BRFs in 13 Sentinel2 bands
+!>        for the respective states in the control vector.
+!
+!
+!> @param[in]   n  length of control vector for multiple simulations in MW and optical domain
+!> @param[in]   x  control vector normalised by prior uncertainty
+!                  (expected ordering is: S1 related parameter(s) followed by
+!                   by state variables LAI,HC,SM per 'simulation point')
+!> @param[in]   m  length of output vector
+!> @param[out]  y  simulated backscatter values (VH,VV) and simulated TOC BRFs
+!                  (for all 13 S2 wave-bands)
+!                  (Ordering is: simulated backscatter values per 'simulation point'
+!                                followed by BRF values per 'simulation point')
+!
+SUBROUTINE SIMULATE_S1S2_FWV(n, x, x_fwv, m, y, y_fwv, nbdirs)
+  USE MO_SENSIMUL, ONLY : get_nc_s1, get_nc_s2, get_m_s1, get_m_s2, &
+& get_n, get_m
+  USE MO_SENSIMUL, ONLY : sim_fill_value
+  USE DIFFSIZES
+!  Hint: nbdirsmax should be the maximum number of differentiation directions
+  IMPLICIT NONE
+! arguments
+  INTEGER, INTENT(IN) :: n, m
+  REAL(kind=8), INTENT(IN) :: x(n)
+  REAL(kind=8), INTENT(IN) :: x_fwv(nbdirsmax, n)
+  REAL(kind=8), INTENT(OUT) :: y(m)
+  REAL(kind=8), INTENT(OUT) :: y_fwv(nbdirsmax, m)
+! local decls
+  REAL(kind=8) :: xp_s1(GET_NC_S1()), xp_s2(GET_NC_S2())
+  REAL(kind=8) :: xp_s1_fwv(nbdirsmax, GET_NC_S1()), xp_s2_fwv(nbdirsmax&
+& , GET_NC_S2())
+  INTEGER :: n_s1, n_s2, m_s1, m_s2
+  REAL(kind=8) :: xphys(n)
+  REAL(kind=8) :: xphys_fwv(nbdirsmax, n)
+  INTEGER :: nd
+  INTEGER :: nbdirs
+!-- dimension consistency
+  IF (n .NE. GET_N()) THEN
+    WRITE(*, '(a,2(a,i3,1x))') &
+&   ' FATAL::simulate_s1s2:inconsistent length of state vector!', &
+&   'expected=', GET_N(), 'got=', n
+    STOP
+  ELSE IF (m .NE. GET_M()) THEN
+    WRITE(*, '(a,2(a,i3,1x))') &
+&   ' FATAL::simulate_s1s2:inconsistent length of simulation vector.', &
+&   'expected=', GET_M(), 'got=', m
+    STOP
+  ELSE
+!-- initialise output
+    y = sim_fill_value
+!-- convert normalised to physical control vector
+    CALL X2P_FWV(n, x, x_fwv, xphys, xphys_fwv, nbdirs)
 !-- extract specific control vectors
     n_s1 = GET_NC_S1()
     n_s2 = GET_NC_S2()
     m_s1 = GET_M_S1()
     m_s2 = GET_M_S2()
-    CALL CONTROL_VECTOR_SPLIT_FWV(n, x, x_fwv, n_s1, x_s1, x_s1_fwv, &
-&                           n_s2, x_s2, x_s2_fwv, nbdirs)
-!-- misfit related to S1
-    IF (nobs_s1 .GT. 0) THEN
-      CALL SIMULATE_S1_FWV(n_s1, x_s1, x_s1_fwv, m_s1, y(1:m_s1), y_fwv(&
-&                    :, 1:m_s1), nbdirs)
-      DO nd=1,nbdirs
-        obsdiff_fwv(nd, :) = 0.0_8
-      END DO
-      DO i=1,m_s1
-        IF (yobs(i) .NE. sim_fill_value) THEN
-! TAPENADE: (TC19) Equality test on reals is not reliable
-          DO nd=1,nbdirs
-            obsdiff_fwv(nd, i) = y_fwv(nd, i)/syobs(i)
-          END DO
-          obsdiff(i) = (y(i)-yobs(i))/syobs(i)
-        END IF
-      END DO
+    CALL CONTROL_VECTOR_SPLIT_FWV(n, xphys, xphys_fwv, n_s1, xp_s1, &
+&                           xp_s1_fwv, n_s2, xp_s2, xp_s2_fwv, nbdirs)
+!-- S1 simulation
+    IF (n_s1 .GT. 0) THEN
+      CALL SIMULATE_S1_FWV(n_s1, xp_s1, xp_s1_fwv, m_s1, y(1:m_s1), &
+&                    y_fwv(:, 1:m_s1), nbdirs)
     ELSE
-      obsdiff(1:m_s1) = 0._8
       DO nd=1,nbdirs
-        obsdiff_fwv(nd, :) = 0.0_8
         y_fwv(nd, :) = 0.0_8
       END DO
     END IF
-!-- misfit related to S2
-    p1 = m_s1 + 1
-    p2 = m_s1 + m_s2
-    IF (nobs_s2 .GT. 0) THEN
-      CALL SIMULATE_S2_FWV(n_s2, x_s2, x_s2_fwv, m_s2, y(p1:p2), y_fwv(:&
-&                    , p1:p2), nbdirs)
-      DO i=p1,p2
-        IF (yobs(i) .NE. sim_fill_value) THEN
-! TAPENADE: (TC19) Equality test on reals is not reliable
-          DO nd=1,nbdirs
-            obsdiff_fwv(nd, i) = y_fwv(nd, i)/syobs(i)
-          END DO
-          obsdiff(i) = (y(i)-yobs(i))/syobs(i)
-        END IF
-      END DO
-    ELSE
-      DO nd=1,nbdirs
-        obsdiff_fwv(nd, p1:p2) = 0.0_8
-      END DO
-      obsdiff(p1:p2) = 0._8
-    END IF
+!-- S2 simulation
+    IF (n_s2 .GT. 0) CALL SIMULATE_S2_FWV(n_s2, xp_s2, xp_s2_fwv, m_s2, &
+&                                   y(m_s1+1:m_s1+m_s2), y_fwv(:, m_s1+1&
+&                                   :m_s1+m_s2), nbdirs)
   END IF
-END SUBROUTINE MISFIT_FWV
+END SUBROUTINE SIMULATE_S1S2_FWV
 
 !  Differentiation of simulate_s1 in forward (tangent) mode (with options messagesInFile noinclude noISIZE r8 multiDirectional):
 !   variations   of useful results: y
@@ -386,8 +417,6 @@ SUBROUTINE SIMULATE_S1_FWV(n, x, x_fwv, m, y, y_fwv, nbdirs)
   INTEGER :: i0, i1, j0, j1
   REAL(kind=8) :: statev(nparam_s1+nsc)
   REAL(kind=8) :: statev_fwv(nbdirsmax, nparam_s1+nsc)
-  REAL(kind=8) :: xpr_s1(nparam_s1+npts_s1*nsc), sxpr_s1(nparam_s1+&
-& npts_s1*nsc)
   REAL(kind=8) :: single_ivgeom(4)
   INTEGER :: nd
   INTEGER :: nbdirs
@@ -1743,13 +1772,12 @@ SUBROUTINE SIMULATE_S2_FWV(n, x, x_fwv, m, y, y_fwv, nbdirs)
   REAL(kind=8) :: statev(nsc)
   REAL(kind=8) :: statev_fwv(nbdirsmax, nsc)
   REAL(kind=8) :: single_ivgeom(4)
-  REAL(kind=8) :: xpr_s2(npts_s2*nsc), sxpr_s2(npts_s2*nsc)
   INTEGER :: nd
   INTEGER :: nbdirs
 !-- dimension consistency
   IF (n .NE. GET_NC_S2()) THEN
     WRITE(*, '(a,2(a,i3,1x))') &
-&   ' FATAL::simulate_s1:inconsistent length of state vector!', &
+&   ' FATAL::simulate_s2:inconsistent length of state vector!', &
 &   'expected=', GET_NC_S2(), 'got=', n
     STOP
   ELSE
@@ -3354,7 +3382,7 @@ END SUBROUTINE MULTIPLE_DOM_FWV
 
 !  Differentiation of convolve in forward (tangent) mode (with options messagesInFile noinclude noISIZE r8 multiDirectional):
 !   variations   of useful results: convolve
-!   with respect to varying inputs: s1
+!   with respect to varying inputs: spect1
 !***********************************************************
 !     convolve
 !
@@ -3362,22 +3390,22 @@ END SUBROUTINE MULTIPLE_DOM_FWV
 !
 !> @details TBD
 !
-!> @param[in]  nw  length of spectra
-!> @param[in]  s1  first spectrum
-!> @param[in]  s2  second spectrum
+!> @param[in]  nw      length/size of spectra
+!> @param[in]  spect1  first spectrum
+!> @param[in]  spect2  second spectrum
 !
-SUBROUTINE CONVOLVE_FWV0(nw, s1, s1_fwv, s2, convolve, convolve_fwv, &
-& nbdirs)
+SUBROUTINE CONVOLVE_FWV0(nw, spect1, spect1_fwv, spect2, convolve, &
+& convolve_fwv, nbdirs)
   USE DIFFSIZES
 !  Hint: nbdirsmax should be the maximum number of differentiation directions
   IMPLICIT NONE
 ! arguments
   INTEGER, INTENT(IN) :: nw
-  REAL(kind=8), INTENT(IN) :: s1(nw), s2(nw)
-  REAL(kind=8), INTENT(IN) :: s1_fwv(nbdirsmax, nw)
+  REAL(kind=8), INTENT(IN) :: spect1(nw), spect2(nw)
+  REAL(kind=8), INTENT(IN) :: spect1_fwv(nbdirsmax, nw)
 ! local decls
-  REAL(kind=8) :: s1_dot_s2, s2_sum
-  REAL(kind=8), DIMENSION(nbdirsmax) :: s1_dot_s2_fwv
+  REAL(kind=8) :: spect1_dot_spect2, spect2_sum
+  REAL(kind=8), DIMENSION(nbdirsmax) :: spect1_dot_spect2_fwv
   INTRINSIC SUM
   REAL(kind=8), DIMENSION(nw) :: arg1
   REAL(kind=8), DIMENSION(nbdirsmax, nw) :: arg1_fwv
@@ -3385,15 +3413,15 @@ SUBROUTINE CONVOLVE_FWV0(nw, s1, s1_fwv, s2, convolve, convolve_fwv, &
   REAL(kind=8) :: convolve
   REAL(kind=8) :: convolve_fwv(nbdirsmax)
   INTEGER :: nbdirs
-  s2_sum = SUM(s2)
+  spect2_sum = SUM(spect2)
   DO nd=1,nbdirs
-    arg1_fwv(nd, :) = s2*s1_fwv(nd, :)
-    s1_dot_s2_fwv(nd) = SUM(arg1_fwv(nd, :))
-    convolve_fwv(nd) = s1_dot_s2_fwv(nd)/s2_sum
+    arg1_fwv(nd, :) = spect2*spect1_fwv(nd, :)
+    spect1_dot_spect2_fwv(nd) = SUM(arg1_fwv(nd, :))
+    convolve_fwv(nd) = spect1_dot_spect2_fwv(nd)/spect2_sum
   END DO
-  arg1(:) = s1*s2
-  s1_dot_s2 = SUM(arg1(:))
-  convolve = s1_dot_s2/s2_sum
+  arg1(:) = spect1*spect2
+  spect1_dot_spect2 = SUM(arg1(:))
+  convolve = spect1_dot_spect2/spect2_sum
 END SUBROUTINE CONVOLVE_FWV0
 
 !  Differentiation of sm_to_rsl1 in forward (tangent) mode (with options messagesInFile noinclude noISIZE r8 multiDirectional):
@@ -3430,6 +3458,37 @@ SUBROUTINE SM_TO_RSL1_FWV0(sm, sm_fwv, rsl1, sm_coeff, sm_to_rsl1, &
   END DO
   sm_to_rsl1 = rsl1*(1.-sm_coeff*sm)
 END SUBROUTINE SM_TO_RSL1_FWV0
+
+!  Differentiation of x2p in forward (tangent) mode (with options messagesInFile noinclude noISIZE r8 multiDirectional):
+!   variations   of useful results: xp
+!   with respect to varying inputs: x
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!> \file mapping.f90
+!> \brief mapping of 1D control vector to physical variables
+!> \authors The Inversion Lab (Michael Vossbeck, Thomas Kaminski) 
+!> \date  April 2018
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+SUBROUTINE X2P_FWV(n, x, x_fwv, xp, xp_fwv, nbdirs)
+  USE DIFFSIZES
+!  Hint: nbdirsmax should be the maximum number of differentiation directions
+  IMPLICIT NONE
+! arguments
+  INTEGER, INTENT(IN) :: n
+  REAL(kind=8), INTENT(IN) :: x(n)
+  REAL(kind=8), INTENT(IN) :: x_fwv(nbdirsmax, n)
+  REAL(kind=8), INTENT(OUT) :: xp(n)
+  REAL(kind=8), INTENT(OUT) :: xp_fwv(nbdirsmax, n)
+! local decls
+  REAL(kind=8) :: sx(n), pr(n)
+  EXTERNAL GETPRIOR
+  INTEGER :: nd
+  INTEGER :: nbdirs
+  CALL GETPRIOR(n, pr, sx)
+  DO nd=1,nbdirs
+    xp_fwv(nd, :) = sx*x_fwv(nd, :)
+  END DO
+  xp = x*sx
+END SUBROUTINE X2P_FWV
 
 !  Differentiation of control_vector_split in forward (tangent) mode (with options messagesInFile noinclude noISIZE r8 multiDirec
 !tional):

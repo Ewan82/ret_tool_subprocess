@@ -1,6 +1,0 @@
-&RETRCTL
-  retr_use_prior_term = .true. ! if .true. then J_p included in Eq. 1.5
-  retr_use_state_term = .true. ! if .true. then J_m included in Eq. 1.5
-  gradient_tol = 1.000000e-05 ! stopping criterion for minimisation: rel. reduction in gradient norm
-  prior_pert = 0.000000e+00 ! initial guess will be a perturbed prior
-/

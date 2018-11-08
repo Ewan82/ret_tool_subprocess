@@ -1,0 +1,87 @@
+>
+> I suggest the following [very rough] agenda:
+>
+> Wednesday PM - review what is required for WP41 and WP42 and raise any immediate issues. We should aim to have a detailed agenda for Thursday.
+> Thursday AM - detailed discussion of tasks so we all know exactly who is doing what. Philip - it would be really cool to know what field data you have for example.
+
+Thanks, this reads very well!
+
+Along these lines, Michael and I put together a list of points we could discuss:
+ok - status of sentinel simulator, which updates of prototype tool are required? Recall that the preprocessor of the prototype tool uses much of the sentinel simulator code. The prototype tool cannot yet prepare real S1/2 observations. It cannot yet handle points other than Wallerfing.
+ok - installing prototype tool on your notebooks
+ok - version control/repostitory/installation for/of the prototype tool code
+ok - geometry
+ok - non-state vector inputs
+ok - target quantities: How to extract/compute those that are not part of the state vector and provide uncertainty ranges (FAPAR/albedo). Maybe predict what another sensor would see?
+ok. - refine prior (and uncertianty) for different use cases with and without link to JULES
+ok - refine parameterisation of dynamical model for different use cases with and without link to JULES
+ok - refine bounds for optimisation routine
+- agree on suggested dates for next meeting (ICR), in next week's PM we need to agree on a date with ESA
+- go through descriptions of WP41, WP42 and possibly also WP51, and decide who does what, and how D6 (performance report) should look like,ok  If we want to do WP51 as well we could try to agree on a time slot for a short telecon/zoom session with Joris, e.g. on Thursday.- status of deliverables we had submitted and milestone 2
+ok - take a photo
+- discuss which use cases we should prepare for the retrieval tool (to be documented in D5)
+ok - check whether prototype tool offers all the functionality we need
+ok - in WP41 we  have promised to quantify the effect of losing, e.g. one of the two S1 satellites, or individual channels/bands. We could discuss which cases are most realistic.
+ok - google earth engine
+ok - quick look at BMWi call
+
+
+
+Actions:
+-> PM: to process S1/2 data (including co-registration and to a master S1) and to send them to Reading, if easy also LandSat (exclude thermal band)
+-> TK/MV: to add D5 to retrieval tool software
+-> PM: to provide the S1/2 geometry to Reading
+-> TQ: to provide realistic failure sceenarios of S1/2 to iLab
+-> PM: to check whether we have shape files for field geometries, at least for Europe
+-> TQ/EP: define site.nml configuration file (Wallerfing, Italian/Polish site)
+-> TK/MV: extend preprocessing step to handle real observed data
+-> PM: to produce NetCDF datafiles for S1/S2 observations
+-> PM/TQ: to think about uncertainty of Sentinal observations (L2A level)
+-> PM: to provide obs uncertainty (plus reference/justfication) for S1
+-> TQ: to provide obs uncertainty (plus reference/justification) for S2
+-> MV: to check code into gitlab
+-> MV: to correct the S1 observation operator to provide VH, VV
+-> PM: to provide of list of S1 specific content for site configuration file
+-> Reading: to provide of list of S2 specific content for site configuration file
+-> iLab: reading configuration file in the inversion tool
+-> TQ: (if time left) to check difference in spectral response of S2a and S2b
+-> EP: to provide summary results of JULES ensemble runs, i.e. mean+/-sigma and first differences+/- sigma per site (not per pixel)
+-> TQ: to provide a small wrapper to semi-descrete for spectral integral for FAPAR (albedo VIS)
+-> TQ/EP: to design and implement phenology as target quantity (based on time series of retrieved states)
+-> EP/MV: zoom session next week to check changes in simulator 
+-> PM: to ask for sow and harvest dates for Wallerfing, Polish and Italian site
+-> all: everybody to look at WPs 41 and 42 and check whether there are further actions and if so check with the other people
+
+prior generic pixel (agrigulture)
+- LAI: 1.5 , sigma 5
+- sm: 0.3, sigma .2
+- h_c: 1.5 m, sigma 2
+
+model sigma:
+canopy height 1 m for δt < 10 d; 2 m for 10 d < δt < 30 d; 5 m for 30 d < δt
+
+25 years, 300 realistions of different parameters all over Wallerfing.
+
+agriculture:
+0 < LAI < 10 (maybe 8)
+0 (0.1) < SM < .5 (maybe .4)
+0 < h_c < 4.5 (maybe 3.5)
+
+FAPAR (VIS albedo) 
+- switch semi-descrete to energy mode
+- integration at 5 NM of 400 to 700 nm 
+
+Two use cases:
+1) switch from Wallerfing to one of the other test sites
+2) switch to another site and without JULES simulation underneath
+
+Suggested dates:
+
+TQ: not available in the week startig the 3rd
+TQ: not from 12th to 21st
+TK: not from 17th
+TK: not from 1st of October 
+PM: blocked from 9th to 15th
+
+Last week of September: Wednesday to Friday
+3rd week of October

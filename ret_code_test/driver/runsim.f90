@@ -12,14 +12,14 @@ program runsim
   logical :: s1a_looses_vv     = .false.
   logical :: s1b_looses_vv     = .false.
   logical :: s2_looses_swnir   = .false.     !-- set S2 simulations in the NIR bands to missing value
-  logical :: s2a_looses_visnir = .false.   !-- set S2A simulations in the visible bands to missing value
-  logical :: s2a_looses_swnir  = .false.    !-- set S2A simulations in the NIR bands to missing value
-  logical :: s2b_looses_visnir = .false.   !-- set S2B simulations in the visible bands to missing value
-  logical :: s2b_looses_swnir  = .false.    !-- set S2B simulations in the NIR bands to missing value
+  logical :: s2a_looses_visnir = .false.     !-- set S2A simulations in the visible bands to missing value
+  logical :: s2a_looses_swnir  = .false.     !-- set S2A simulations in the NIR bands to missing value
+  logical :: s2b_looses_visnir = .false.     !-- set S2B simulations in the visible bands to missing value
+  logical :: s2b_looses_swnir  = .false.     !-- set S2B simulations in the NIR bands to missing value
 
   ! other
   integer             :: j, n, m
-  real(kind=8), allocatable :: x(:), sx(:), ysim(:)
+  real(kind=8), allocatable :: x(:), sx(:), ysim(:), xphys(:)
   logical :: exist
   logical :: ldebug = .true.
 
@@ -98,13 +98,13 @@ program runsim
 
   !-------------------
   ! allocate arrays
-  allocate(x(n),sx(n),ysim(m))
+  allocate(x(n),xphys(n),sx(n),ysim(m))
 
   !-------------------
-  ! init unknowns
+  ! init unknowns !!!physical values!!!
   write(*, '(a)') ' INFO::runsim:calling initx...'
-  call getprior(n, x, sx )
-  write(*, '(a)') ' INFO::runsim:...done.'
+  call initx(n, x, sx)
+  write(*, '(a)') ' INFO::runsim:...DONE.'
 
   !-------------------
   ! possibly overwrite
@@ -114,14 +114,19 @@ program runsim
      open (unit=1, file='x-external.b', form='unformatted')
      read (1) x
      close (1)
-     print*, 'reading control vector from x-external.b'
+     write(*, '(a)') ' INFO::runsim:have read control vector from x-external.b'//&
+          ' !!!expecting scaled control vector!!!'
   endif
+
+
+  !--
+  call x2p(n, x, xphys)
 
   if( ldebug ) then
      write(*,'(a)') ' DEBUG::runsim::calling simulate_s1s2 at x ...'
      write(*, '(a3,3(a15))' ) 'j', 'x-physical', 'x-scaled', 'x-sigma'
      do j=1,n
-        write(*, '(i3,3(f15.8))' ) j, x(j), x(j)/sx(j), sx(j)
+        write(*, '(i3,3(f15.8))' ) j, xphys(j), x(j), sx(j)
      enddo
   endif
 
@@ -200,6 +205,7 @@ program runsim
     subroutine dispose()
       implicit none
       if( allocated(x) )    deallocate(x)
+      if( allocated(xphys) )    deallocate(xphys)
       if( allocated(sx) )   deallocate(sx)
       if( allocated(ysim) ) deallocate(ysim)
     end subroutine dispose

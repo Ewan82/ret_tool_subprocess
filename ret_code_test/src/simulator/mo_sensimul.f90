@@ -37,8 +37,12 @@ module mo_sensimul
   integer, allocatable      :: timept_idxs_s2(:)  !         npts_s2  !position(s) of S2 in schedule
   character(256)            :: time_unit = ''
 
-  !-- external files to set-up simulation/retrieval system
-  !-- NOTE:these files *must* be located in the current working directory
+  !-- external files to set-up and initialise simulation/retrieval system
+  !-- files below should have been made available by the rs_setup.py utility
+  character(len=256), parameter :: s2_srf_file      = 'input/s2a.srf'
+  character(len=256), parameter :: solar_spect_file = 'input/ASTMG173.csv'
+  !-- NOTE:files below *must* reside in the current working directory,
+  !--      and are typically created by invoking rs_pre.py (preprocessing tool)
   character(len=256), parameter :: config_file = 'retrconfig.nc'
   character(len=256), parameter :: prior_file  = 'retrprior.nc'
   character(len=256), parameter :: model_file  = 'retrmodel.nc'
@@ -83,7 +87,7 @@ contains
     call sense_init()
 
     !-- initialise operator for optical domain
-    call semid_init(srf_fname='input/s2a.srf')
+    call semid_init(s2_srf_file, solar_spect_file)
 
   end subroutine simulator_init
 
@@ -151,6 +155,42 @@ contains
   end function get_n
 
   !****************************************
+  !    get_npts
+  !
+  !> @brief returns (1D) overall number of time-points
+  !
+  !> \return  number of time-points
+  !
+  pure integer function get_npts()
+    implicit none
+    get_npts = npts
+  end function get_npts
+
+  !****************************************
+  !    get_ns
+  !
+  !> @brief returns (1D) overall length of state variables in control vector
+  !
+  !> \return  length of state vector
+  !
+  pure integer function get_ns()
+    implicit none
+    get_ns = npts*nsc
+  end function get_ns
+
+  !****************************************
+  !    get_np
+  !
+  !> @brief returns (1D) overall length of parameter part in control vector
+  !
+  !> \return  length of parameter vector
+  !
+  pure integer function get_np()
+    implicit none
+    get_np = nparam_s1 + nparam_s2
+  end function get_np
+
+  !****************************************
   !    get_m_s1
   !
   !> @brief returns (1D) length of simulation vector in MW domain
@@ -188,30 +228,6 @@ contains
     implicit none
     get_m = get_m_s1() + get_m_s2()
   end function get_m
-
-  !****************************************
-  !    get_ns
-  !
-  !> @brief returns (1D) overall length of state variables in control vector
-  !
-  !> \return  length of state vector
-  !
-  pure integer function get_ns()
-    implicit none
-    get_ns = npts*nsc
-  end function get_ns
-
-  !****************************************
-  !    get_np
-  !
-  !> @brief returns (1D) overall length of parameter part in control vector
-  !
-  !> \return  length of parameter vector
-  !
-  pure integer function get_np()
-    implicit none
-    get_np = nparam_s1 + nparam_s2
-  end function get_np
 
   !****************************************
   !    idx_is_s1

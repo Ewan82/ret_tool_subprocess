@@ -146,7 +146,7 @@ end subroutine nadim_prospect_price_fast_1geom
 !> @param[in]  rsl4         weight of fourth spectral vector of the soil reflectance (PRICE)
 !> @param[out] brf          Bidirectional reflectance factor
 !
-subroutine nadime_prospect_price_full_1geom( nw1nm, &
+subroutine nadime_prospect_price_full_1geom( nw1nm, nw, &
      theta_i, phi_i, theta_v, phi_v, &
      lad, rpl, lai, hc, &
      vai, cab, cw, cp, cc, &
@@ -156,13 +156,14 @@ subroutine nadime_prospect_price_full_1geom( nw1nm, &
   ! constants
   integer, parameter :: niv = 1 !number of view--illumination geometries
   ! arguments
-  integer, intent(in) :: nw1nm
+  integer, intent(in) :: nw1nm !-- maximal number of 1nm wave-lenghts [400nm,2500nm]
+  integer, intent(in) :: nw    !-- actual  number of 1nm wave-lengths [400nm,400nm+nw-1]
   real, intent(in) :: theta_i, phi_i, theta_v, phi_v
   integer, intent(in) :: lad
   real, intent(in) :: rpl, lai, hc
   real(kind=8), intent(in) :: vai, cab, cw, cp, cc
   real, intent(in) :: rsl1, rsl2, rsl3, rsl4
-  real, intent(out) :: brf(nw1nm), fpar(nw1nm), albedo(nw1nm), trans(nw1nm)
+  real, intent(out) :: brf(nw), fpar(nw), albedo(nw), trans(nw)
   ! externals
   external price_soil_fullSpectrum_interp1nm_ftn
   external prospect_fullSpectrum_interp1nm_ftn
@@ -186,9 +187,8 @@ subroutine nadime_prospect_price_full_1geom( nw1nm, &
   call price_soil_fullSpectrum_interp1nm_ftn(rsl1, rsl2, rsl3, rsl4, p_rs)
 
 
-
   !-- loop over all wavelengthts
-  bndloop:do iw=1,nw1nm
+  bndloop:do iw=1,nw
 
      !-- set soil-reflectance, leaf reflectance/transmittance
      rs = p_rs(iw)
@@ -217,21 +217,21 @@ end subroutine nadime_prospect_price_full_1geom
 !
 !> @details TBD
 !
-!> @param[in]  nw  length of spectra
-!> @param[in]  s1  first spectrum
-!> @param[in]  s2  second spectrum
+!> @param[in]  nw      length/size of spectra
+!> @param[in]  spect1  first spectrum
+!> @param[in]  spect2  second spectrum
 !
-real(kind=8) function convolve(nw, s1, s2)
+real(kind=8) function convolve(nw, spect1, spect2)
   implicit none
   ! arguments
   integer, intent(in) :: nw
-  real(kind=8), intent(in) :: s1(nw), s2(nw)
+  real(kind=8), intent(in) :: spect1(nw), spect2(nw)
   ! local decls
-  real(kind=8) :: s1_dot_s2, s2_sum
+  real(kind=8) :: spect1_dot_spect2, spect2_sum
 
-  s2_sum = sum(s2)
-  s1_dot_s2 = sum(s1*s2)
-  convolve = s1_dot_s2/s2_sum
+  spect2_sum = sum(spect2)
+  spect1_dot_spect2 = sum(spect1*spect2)
+  convolve = spect1_dot_spect2/spect2_sum
 
 end function convolve
 

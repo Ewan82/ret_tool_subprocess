@@ -315,8 +315,8 @@ class RetrievalSetup(object):
             #       = [ XX(XX_db)*10**(sXX_db/10.) - XX(XX_db)*10**(-sXX_db/10.)]
             #       = XX(XX_db)*[10**(sXX_db/10.) - 10**(-sXX_db/10.)]
             #       = XX * [10**(sXX_db/10.) - 10**(-sXX_db/10.)]
-            svh = 0.5*vh*(10**(self.s1_unc_db/10.) - 10**(-1*self.s1_unc_db/10.))
-            svv = 0.5*vv*(10**(self.s1_unc_db/10.) - 10**(-1*self.s1_unc_db/10.))
+            svh = 0.5*vh*(10**(self.s1_unc_db/10.) - 10**(-1*self.s1_unc_db/10.))  # could try 0.005? np.array([0.005]*len(vh))
+            svv = np.array([0.04]*len(vv))  # 0.5*vv*(10**(self.s1_unc_db/10.) - 10**(-1*self.s1_unc_db/10.))
             msg = "determined VH uncertainty in linear units, min/max={}/{}".format(
                 svh.min(), svh.max())
             FileLogger.info(msg)

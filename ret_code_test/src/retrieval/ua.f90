@@ -14,7 +14,7 @@ subroutine ua (m, n, x, c, debug, diag, ierr)
   logical :: matu = .true., matv = .true.
 
   iflag = 2
-  call jacobian ( m, n, x, fvec, fjac, m, iflag )
+  call cost_jacobian ( m, n, x, fvec, fjac, m, iflag )
 
   ierr = 0
   call svd ( m, n, fjac, w, matu, u, matv, v, ierr )

@@ -42,7 +42,7 @@ RETRCTL_FILE    := retrctl.nml
 SITE_FILE       := site.nml
 BOUNDS_FILE     := retrctlvecbounds.nml
 INPUT_DIR       := input
-EXPV            := V1.4.2
+EXPV            := V1.4.3
 TIMSTART        := 20170501
 TIMEND          := 20170531
 TGTSCHEDULE_FILE := $(INPUT_DIR)/target_schedule_2017.txt
@@ -138,7 +138,8 @@ MODEL_ASRCS = \
 $(MDIR)/mo_sensimul.f90 \
 $(MDIR)/simulate.f90 \
 $(MDIR)/mapping.f90 \
-$(MDIR)/model.f90
+$(MDIR)/model.f90 \
+$(MDIR)/target_operator.f90
 
 RETR_ASRCS = \
 $(RETR_SDIR)/cost.f90 \
@@ -375,6 +376,11 @@ runua.x: $(OBJDIR)/runua.o $(LIBRETR) $(LIBDERIV) $(LIBMODEL) $(LIBSUPPORT) $(LI
 	$(FC) $(FFOPTI) -o $@ $^ $(LDNCLIB)
 EXPCLEAN_FILES += xrunua.log sigma.dat
 
+PRGS += target_processor.x
+target_processor.x: $(OBJDIR)/target_processor.o $(LIBMODEL) $(LIBSUPPORT)
+	$(FC) -o $@ $(FFOPTI) $^ $(LDNCLIB)
+EXPCLEAN_FILES += sensimul_s?.nc sensimul_s?.b sensimul.b
+
 #===========================================================
 #
 #               S1 + S2   T A R G E T S
@@ -432,6 +438,10 @@ mba: runua.x $(RETRCONFIG_FILE) $(RETRPRIOR_FILE) $(RETRMODEL_FILE) $(RETRCTL_FI
 .PHONY: mba
 EXPCLEAN_FILES += sigma.dat controlvector_prior.nc controlvector_post.nc mk.mba.log
 
+target: target_processor.x $(RETRCONFIG_FILE) $(RETRPRIOR_FILE) $(RETRMODEL_FILE) $(RETRCTL_FILE) $(SITE_FILE)
+	./$< --target fapar
+.PHONY: target
+
 synthetic: simulate.x $(RETRCONFIG_FILE) $(RETRPRIOR_FILE) $(SITE_FILE)
 	./$< $(SYNXTRA) |& tee mk.synthetic.log
 	if [ -f sensimul_s1.nc ]; then mv sensimul_s1.nc obs_s1.nc; fi
@@ -447,7 +457,7 @@ EXPCLEAN_FILES += obs_s1.nc obs_s2.nc simulation.nc mk.synthetic.log
 #--
 reference: runinv.x runua.x
 	$(MAKE) clean_exp
-	$(MAKE) pre PRE_MODE=pre_synthetic PREARGXTRA="--no_use_state"
+	$(MAKE) pre PRE_MODE=pre_synthetic PREARGXTRA="--no_use_model"
 	$(MAKE) retrieval
 	$(MAKE) mba
 	$(MAKE) save_exp SAVDIR=resdir_$@_$(EXPV)
@@ -464,7 +474,7 @@ complete: simulate.x runinv.x runua.x
 
 nomodel: simulate.x runinv.x runua.x
 	$(MAKE) clean_exp
-	$(MAKE) pre PRE_MODE=pre_synthetic PREARGXTRA="--no_use_state"
+	$(MAKE) pre PRE_MODE=pre_synthetic PREARGXTRA="--no_use_model"
 	$(MAKE) synthetic
 	$(MAKE) retrieval
 	$(MAKE) mba
@@ -656,6 +666,7 @@ $(OBJDIR)/cost.o $(DVBWOBJ) $(DVFWVOBJ): $(OBJDIR)/mo_retrieval.o
 $(OBJDIR)/misfit.o: $(OBJDIR)/mo_sensimul.o
 $(OBJDIR)/jacobian.o: $(OBJDIR)/DIFFSIZES.o $(OBJDIR)/retrieval_control.o
 $(OBJDIR)/runsim.o: $(OBJDIR)/mo_sensimul.o
+$(OBJDIR)/target_processor.o: $(OBJDIR)/mo_sensimul.o
 
 
 #===========================================================

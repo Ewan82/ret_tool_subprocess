@@ -797,6 +797,150 @@ end subroutine ncwrt_simulation_vector
 
 
 !***********************************************************
+!     ncwrt_target_vector
+!
+!> @brief Writes Sentinel Simulator generated (1D) simulation vector for
+!         specific simulation typ (S1 or S2) to NetCDF file.
+!
+!> @details TBD
+!
+!> @param[in]  fname        file name of NetCDF files providing prior information
+!> @param[in]  dsname       dataset identifier
+!> @param[in]  m            1D-size of simulation vector (for current simulation typ)
+!> @param[in]  y            1D simulation vector (for current simulation typ)
+!> @param[out] succeed      flag indicating whether prior setup was successfully read
+!
+subroutine ncwrt_target_vector(fname, dsname, m, y, yunc, succeed)
+  use netcdf
+  use mo_sensimul
+  implicit none
+  ! arguments
+  character(len=*), intent(in) :: fname
+  character(len=*), intent(in) :: dsname
+  integer, intent(in) :: m
+  real(kind=8), intent(in) :: y(m), yunc(m)
+  logical, intent(out) :: succeed
+  ! local decls
+  integer :: rc, fid, data_vid, dataunc_vid
+  integer :: time_vid
+  integer :: dim_ids(1)
+  character(len=16) :: dataset_name, datasetunc_name, dim1, dim2
+  real(kind=8), allocatable :: timepts_out(:)
+  integer :: i,isim,cnt(1)
+
+  !-- initialise return flag
+  succeed = .false.
+
+  if( m.ne.get_npts() ) then
+     write(*, '(a,2(a,i3,1x))') ' FATAL::ncwrt_target_vectorr:'//&
+          'inconsistent length of simulation vector.',&
+          'expected=',get_npts(),'got=',m
+  endif
+  
+
+  dataset_name = dsname
+  datasetunc_name = trim(dsname)//'_unc'
+  dim2 = 'npoints'
+
+
+  !-- open file handle
+  rc = nf90_create(trim(fname), NF90_NETCDF4, fid)
+  if( rc.ne.nf90_noerr) then
+     write(*,'(a,a)') ' ###NETCDF-ERROR::ncwrt_target_vector: opening file '//&
+          '***'//trim(fname)//'*** for writing failed: ',&
+          trim(nf90_strerror(rc))
+     return
+  end if
+
+  !-- get time-values
+  allocate( timepts_out(m) )
+  timepts_out = timepts
+
+
+  !-- create dimensions
+  rc = nf90_def_dim(fid, 'npoints', m, dim_ids(1))
+  if( rc.ne.nf90_noerr) then
+     write(*,'(a,a)') ' ###NETCDF-ERROR::ncwrt_target_vector: creation of dimension '//&
+          '---'//trim(dim1)//'--- failed: ', trim(nf90_strerror(rc))
+     return
+  end if
+
+  !-- define time variable
+  rc = nf90_def_var(fid, 'time', NF90_REAL8, dim_ids(1), time_vid, deflate_level=4)
+  if( rc.ne.nf90_noerr ) then
+     write(*,'(a,a)') ' ###NETCDF-ERROR::ncwrt_target_vector:'//&
+          'creation of dataset variable '//&
+          '---'//trim('time')//'--- failed.', trim(nf90_strerror(rc))
+     return
+  endif
+
+  !-- define dataset variable
+  rc = nf90_def_var(fid, dataset_name, NF90_REAL8, dim_ids, data_vid, deflate_level=4)
+  if( rc.ne.nf90_noerr ) then
+     write(*,'(a,a)') ' ###NETCDF-ERROR::ncwrt_target_vector:'//&
+          'creation of dataset variable '//&
+          '---'//trim(dataset_name)//'--- failed.', trim(nf90_strerror(rc))
+     return
+  endif
+
+  !-- define dataset uncertainty variable
+  rc = nf90_def_var(fid, datasetunc_name, NF90_REAL8, dim_ids, dataunc_vid, deflate_level=4)
+  if( rc.ne.nf90_noerr ) then
+     write(*,'(a,a)') ' ###NETCDF-ERROR::ncwrt_target_vector:'//&
+          'creation of dataset uncertainty variable '//&
+          '---'//trim(datasetunc_name)//'--- failed.', trim(nf90_strerror(rc))
+     return
+  endif
+
+  !-------------------
+  !     e n d   d e f i n e   m o d e
+  !
+  rc = nf90_enddef(fid)
+
+  !-- write time
+  rc = nf90_put_var(fid, time_vid, timepts_out)
+  if( rc.ne.nf90_noerr ) then
+     write(*,'(a,a)') ' ###NETCDF-ERROR::ncwrt_target_vector:'//&
+          'error when writing data to file! ', trim(nf90_strerror(rc))
+     return
+  endif
+  rc = nf90_put_att(fid, time_vid, 'standard_name', 'time')
+  rc = nf90_put_att(fid, time_vid, 'long_name', 'time')
+  if( time_unit.ne.'' ) then
+     rc = nf90_put_att(fid, time_vid, 'units', time_unit)
+  endif
+
+  !-- write data
+  rc = nf90_put_var(fid, data_vid, y)
+  if( rc.ne.nf90_noerr ) then
+     write(*,'(a,a)') ' ###NETCDF-ERROR::ncwrt_target_vector:'//&
+          'error when writing data to file! ', trim(nf90_strerror(rc))
+     return
+  endif
+  rc = nf90_put_att(fid, data_vid, 'missing_value', sim_fill_value)
+
+  !-- write data uncertainty
+  rc = nf90_put_var(fid, dataunc_vid, yunc)
+  if( rc.ne.nf90_noerr ) then
+     write(*,'(a,a)') ' ###NETCDF-ERROR::ncwrt_target_vector:'//&
+          'error when writing data to file! ', trim(nf90_strerror(rc))
+     return
+  endif
+  rc = nf90_put_att(fid, dataunc_vid, 'missing_value', sim_fill_value)
+
+  !-- close file
+  rc = nf90_close(fid)
+
+  !-- dispose memory
+  if( allocated(timepts_out) ) deallocate(timepts_out)
+
+  !-- 
+  succeed = .true.
+
+end subroutine ncwrt_target_vector
+
+
+!***********************************************************
 !     ncrd_obs_vector
 !
 !> @brief Reades observation vector and associated unceratainties from NetCDF file.

@@ -83,10 +83,13 @@ subroutine fapar_operator_1geom( statev, iv_geom, fapar )
   real :: lai, hc, sm
   real :: rsl1
   real :: theta_i, phi_i, theta_v, phi_v
-  real :: fpar_nadim(nw1nm) !'nadime_prospect_price_fast_1geom' does not expect kind=8 !
+  !-- NOTE:'nadime_prospect_price_fast_1geom' uses plain 'real' as type declarator
+  real :: brf_(nwvis1nm), fpar_(nwvis1nm), albedo_(nwvis1nm), trans_(nwvis1nm)
+  real(kind=8) :: fpar_r8(nwvis1nm)
   ! externals
   real, external :: sm_to_rsl1
   external nadime_prospect_price_full_1geom
+  real(kind=8), external :: convolve
 
   !-- map state variables
   !   (might potentially cast from r8 to r4)
@@ -103,15 +106,95 @@ subroutine fapar_operator_1geom( statev, iv_geom, fapar )
   theta_v = iv_geom(3)
   phi_v   = iv_geom(4)
 
-  !-- call coupled optical model for full wavelength-spectrum
-  call nadime_prospect_price_full_1geom(nw1nm, &
+  !-- call coupled optical model for nwvis1nm wavelenghts starting at 400nm
+  call nadime_prospect_price_full_1geom(nw1nm, nwvis1nm, &
        theta_i, phi_i, theta_v, phi_v, &
        lad, rpl, lai, hc, &
        vai, cab, cw, cp, cc, &
        rsl1, rsl2, rsl3, rsl4, &
-       fpar_nadim)
+       brf_, fpar_, albedo_, trans_)
 
-  !-- ! ! ! IMPL-MISSING::integration of 1nm fpar to FAPAR ! ! !
-  write(*, '(a)') ' ERROR::fapar_operator_1geom:FAPAR computation incomplete, just setting -9999'
-  fapar = -9999._8
+  !-- ensure correct precision
+  fpar_r8 = real(fpar_, kind=8)
+
+  !-- integration over wave-lenghts (convolve)
+  fapar = convolve(nwvis1nm, fpar_r8, solspect_response)
 end subroutine fapar_operator_1geom
+
+
+!***********************************************************
+!     simulate_fapar
+!
+!> @brief Implementation of the combined S1 and S2 observation operator.
+!>        Computes backscatter values (VH,VV) and top-of-canopy BRFs in 13 Sentinel2 bands
+!>        for the respective states in the control vector.
+!
+!
+!> @param[in]   n  length of control vector for multiple simulations in MW and optical domain
+!> @param[in]   x  control vector normalised by prior uncertainty
+!                  (expected ordering is: S1 related parameter(s) followed by
+!                   by state variables LAI,HC,SM per 'simulation point')
+!> @param[in]   m  length of output vector
+!> @param[out]  y  simulated backscatter values (VH,VV) and simulated TOC BRFs
+!                  (for all 13 S2 wave-bands)
+!                  (Ordering is: simulated backscatter values per 'simulation point'
+!                                followed by BRF values per 'simulation point')
+!
+subroutine simulate_fapar(n, x, m, y)
+  use mo_sensimul, only:nsc, npts_s2, iv_geom
+  use mo_sensimul, only:get_np,get_n,get_npts
+  use mo_sensimul, only:idx_is_s2, sim_fill_value
+  implicit none
+  ! arguments
+  integer, intent(in) :: n, m
+  real(kind=8), intent(in) :: x(n)
+  real(kind=8), intent(out) :: y(m)
+  ! externals
+  external fapar_operator_1geom
+  ! local decls
+  integer :: n_s1,n_s2,m_s1,m_s2
+  integer :: ipt, ipt_s2
+  integer :: ii0,ii1,j0,j1
+  real(kind=8) :: statev(nsc)
+  real(kind=8) :: single_ivgeom(4)
+  !-- debugging
+  real(kind=8) :: init,finish
+
+  !-- dimension consistency
+  if( n.ne.get_n() ) then
+     write(*, '(a,2(a,i3,1x))') ' FATAL::simulate_fapar:inconsistent length of state vector!',&
+          'expected=',get_n(),'got=',n
+     stop
+  endif
+  if( m.ne.get_npts() ) then
+     write(*, '(a,2(a,i3,1x))') ' FATAL::simulate_fapar:inconsistent length of simulation vector.',&
+          'expected=',get_npts(),'got=',m
+  endif
+
+  !-- initialise
+  y = sim_fill_value
+
+  !-- loop over all time-points
+  ii0 = get_np() + 1
+  simloop:do ipt=1,m
+     if( .not.idx_is_s2(ipt) ) then
+        ii0 = ii0 + nsc
+     else
+        write(*, '(a,i2)') ' DEBUG::simulate_fapar:starting ipt=',ipt
+        call cpu_time(init)
+        !-- extract 'nsc' state vector components
+        !   for current time-point
+        ii1 = ii0 + nsc - 1
+        statev(1:nsc) = x(ii0:ii1)
+        !-- get geometry for this time-point
+        single_ivgeom(1:4) = iv_geom(1:4,ipt)
+        call fapar_operator_1geom( statev, single_ivgeom, y(ipt) )
+        !-- increment start position
+        ii0 = ii1 + 1
+        call cpu_time(finish)
+        write(*, '(a,i2,1x,a,f6.2)') ' DEBUG::simulate_fapar:finished ipt=',ipt,&
+             'elapsed=',(finish-init)
+     endif
+  enddo simloop
+
+end subroutine simulate_fapar

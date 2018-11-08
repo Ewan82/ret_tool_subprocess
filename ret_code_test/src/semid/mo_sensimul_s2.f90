@@ -14,10 +14,12 @@
 module mo_sensimul_s2
   implicit none
 
-  private :: srf_file, read_s2_response
+  private :: load_surface_data, load_solar_spectrum_response
 
   ! wavelength range [400nm,2500nm] at 1nm resolution
-  integer, parameter :: nw1nm = 2500 - 400 + 1 ! ==2101
+  integer, parameter :: nw1nm = 2500 - 400 + 1   ! ==>2101
+  ! wavelength range [400nm,700nm] at 1nm resolution
+  integer, parameter :: nwvis1nm = 700 - 400 + 1 ! ==> 301
 
   ! parameter NADIM
   real :: rpl = 0.1   ! radius of single leaf
@@ -69,49 +71,39 @@ module mo_sensimul_s2
        1375._8, 1610._8, 2190._8/)
 
   ! S2 responses ([400nm,2500nm] x 13 BANDS)
-  character(len=256) :: srf_file = 's2a.srf'
   real(kind=8)       :: s2_response_mat(nw1nm, nb_S2)
+
+  !-- solar spectrum responses (visible domain)
+  real(kind=8) :: solspect_response(nwvis1nm)
 
 contains
 
-  subroutine semid_init(srf_fname)
+  subroutine semid_init(srf_fname, solspect_fname)
     implicit none
-    character(len=*), optional :: srf_fname
-    if( present(srf_fname) ) then
-       call set_srf_file(srf_fname)
+    ! arguments
+    character(len=*), intent(in) :: srf_fname, solspect_fname
+    ! local decls
+    integer :: rc
+
+    !-- load S2 response function
+    rc = load_surface_data(srf_fname, nb_S2, nw1nm, s2_response_mat)
+    if( rc.ne.0 ) then
+       write(*, '(a)' ) ' FATAL::semid_init:'//&
+            'S2 response functions could not be read from file '//&
+            '***'//trim(srf_fname)//'***'
+       stop
     endif
 
-    call read_s2_response()
+    !-- load solar spectrum responses (visible domain)
+    rc = load_solar_spectrum_response(solspect_fname, nwvis1nm, solspect_response)
+    if( rc.ne.0 ) then
+       write(*, '(a)' ) ' FATAL::semid_init:'//&
+            'solar spectrum responses could not be read from file '//&
+            '***'//trim(solspect_fname)//'***'
+       stop
+    endif
 
   end subroutine semid_init
-
-  subroutine set_srf_file(fname)
-    implicit none
-    character(len=*), intent(in) :: fname
-    if( len(fname).gt.256 ) then
-       write(*, '(a)') ' FATAL::set_srf_file:length of filename ***'//fname//'***'//&
-            ' exceeds limit=256.'
-       stop
-    else if( len_trim(fname).eq.0 ) then
-       write(*, '(a)') ' FATAL::set_srf_file:empty filename ***'//fname//'***'//&
-            ' ?'
-       stop
-    else
-       srf_file = fname
-    endif
-  end subroutine set_srf_file
-
-
-  subroutine read_s2_response()
-    implicit none
-    integer :: rc
-    rc = load_surface_data(srf_file, nb_S2, nw1nm, s2_response_mat)
-    if( rc.ne.0 ) then
-       write(*, '(a)' ) ' FATAL::read_s2_response: S2 response functions could not be '//&
-            'read from file ***'//trim(srf_file)//'***'
-       stop
-    endif
-  end subroutine read_s2_response
 
 
   !***********************************************************
@@ -186,4 +178,105 @@ contains
 
   end function load_surface_data
 
+
+  integer function load_solar_spectrum_response(fname, n, solspect) result(rc)
+    implicit none
+    ! arguments
+    character(len=*), intent(in) :: fname
+    integer, intent(in) :: n
+    real(kind=8), intent(out) :: solspect(n)
+    ! local decls
+    integer, parameter :: nhdr = 2     !-- expect two header lines
+    integer, parameter :: ncol = 4     !-- 4 columns in file
+    integer, parameter :: refl_col = 4 !-- 4th column hold the reflectance
+    character(len=32) :: tokens(ncol)
+    real(kind=8) :: wavl, refl
+    integer :: iw, i, ntok, iostat
+    character(len=512) :: buffer
+
+    !-- initialise
+    rc = -1
+    solspect = -1._8
+
+    !-- open file handle
+    open(unit=1, file=fname, form='formatted', status='old',iostat=iostat)
+    if( iostat.ne.0 ) then
+       write(*,'(a)') ' FATAL::load_solar_spectrum_response:'//&
+            'could not open solar spectral response file '//&
+            '***'//trim(fname)//'***'
+       stop
+    endif
+
+    !-- read two header lines
+    do i=1,nhdr
+       read(1, fmt=*,iostat=iostat) buffer
+       ! print*, 'MVMV::ihdr=',i, 'iostat=',iostat,'***'//trim(buffer)//'***'
+    end do
+
+    !-- now extracting wave-lengths from 400nm to 700nm
+    iostat = 0
+    iw = 1
+    ioloop:do while(iostat.eq.0)
+       read(1, fmt=*,iostat=iostat) buffer
+       if( iostat.ne.0 ) then
+          exit ioloop
+       else
+          call csv_split(buffer, ncol, ntok, tokens)
+          read(tokens(1),*) wavl
+          if( wavl.lt.400._8 ) then
+             cycle ioloop
+          else if( wavl.gt.700._8 ) then
+             exit ioloop
+          else
+             read(tokens(refl_col),*) solspect(iw)
+             iw = iw+1
+          endif
+       endif
+
+    end do ioloop
+
+    !-- close handle
+    close(1)
+
+    !-- I/O eventually ok
+    rc = 0
+
+    contains
+      subroutine csv_split(instring, mxnsplit, ntok, splitted_string)
+        implicit none
+        character(len=1), parameter :: delim = ','
+        !     arguments
+        character(len=*), intent(in) :: instring
+        integer, intent(in) :: mxnsplit
+        integer, intent(out) :: ntok
+        character(len=*), intent(out) :: splitted_string(mxnsplit)
+        !     local variables
+        character(len=len(instring)) :: act_string
+        integer :: index
+        integer :: iscan
+
+        ntok = -1
+        splitted_string(1:mxnsplit) = ''
+        iscan = 0
+        act_string = trim(adjustl(instring))
+        index = scan(act_string, delim, back=.false.)
+        delimloop:do while( index.gt.0 )
+           iscan = iscan + 1
+           splitted_string(iscan) = act_string(1:index-1)
+           act_string = trim(adjustl(act_string(index+1:)))
+           index = scan(trim(act_string), delim, back=.false.)
+        end do delimloop
+
+        ntok = iscan+1
+        if( iscan.eq.0 ) then
+           splitted_string = trim(adjustl(instring))
+        else
+           splitted_string(iscan+1) = trim(act_string)
+        endif
+      end subroutine csv_split
+
+  end function load_solar_spectrum_response
+
 end module mo_sensimul_s2
+
+

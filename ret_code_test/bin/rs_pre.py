@@ -16,7 +16,7 @@ prototype system
 
 EXAMPLES
 
-available options are listed by invoking './rs_pre.py' on the command line
+available options are listed by invoking './rs_pre.py -h' on the command line
 
 
 EXIT STATUS
@@ -147,11 +147,11 @@ class RetrievalSetup(object):
         self.s2_uncfloor = kwargs.get('s2_uncfloor',0.01*self.s2_relunc)
 
         #-- control vector uncertainty settings
-        self.lai_coeff_relunc = kwargs.get('laicoeff_relunc', 1.0) # 100%
-        self.lai_relunc       = kwargs.get('lai_relunc',      0.5) #  50%
-        self.canht_relunc     = kwargs.get('canht_relunc',    0.5) #  50%
-        self.sm_relunc        = kwargs.get('sm_relunc',       0.5) #  50%
-        self.lai_coeff_uncfloor = kwargs.get('laicoeff_uncfloor', None)
+        self.lai_coeff_relunc = kwargs.get('lai_coeff_relunc', 1.0) # 100%
+        self.lai_relunc       = kwargs.get('lai_relunc',      0.5)  #  50%
+        self.canht_relunc     = kwargs.get('canht_relunc',    0.5)  #  50%
+        self.sm_relunc        = kwargs.get('sm_relunc',       0.5)  #  50%
+        self.lai_coeff_uncfloor = kwargs.get('lai_coeff_uncfloor', None)
         self.lai_uncfloor       = kwargs.get('lai_uncfloor',      1.e-3)
         self.canht_uncfloor     = kwargs.get('canht_uncfloor',    1.e-3)
         self.sm_uncfloor        = kwargs.get('sm_uncfloor',       1.e-3)
@@ -188,7 +188,7 @@ class RetrievalSetup(object):
 
         #-- inversion settings
         self.use_prior = kwargs.get('use_prior', True)
-        self.use_state = kwargs.get('use_state', True)
+        self.use_model = kwargs.get('use_model', True)
         self.gtol      = kwargs.get('gtol',     1.e-5)
         self.prior_pert = kwargs.get('prior_pert', 0.)
 
@@ -544,6 +544,10 @@ class RetrievalSetup(object):
 
         #-- store scheduled dates
         self.schedule_dct['date_utc'] = date_lst
+        # print "-"*30
+        # for x in date_lst:
+        #     print x.strftime('%Y%m%dT%H:%M')
+        # print "-"*30
 
         #-- determine
         #   - illumination-view geometry
@@ -729,7 +733,7 @@ class RetrievalSetup(object):
             self.prstate[2,i]     = state_inst.soil_moisture[idx]
 
 
-    def setprior_unc_default(self):
+    def setprior_uncertainty(self):
         """
         Function that sets the default uncertainty of the state vector.
         """
@@ -1341,7 +1345,7 @@ def ncwrt_retrieval_obs_s1(retr_setup, outname=None):
     s1_table   = retr_setup.obs_dct['S1']
     timepts    = s1_table.geom.date_utc
     npts       = len(timepts)
-    s1_satid   = np.array(s1_table.sat_id_lst, dtype='S3')
+    s1_satid   = np.array(s1_table.sat_id_lst, dtype=str)
     s1_data    = s1_table.data
     s1_dataunc = s1_table.dataunc
     nt,npol = s1_data.shape
@@ -1395,10 +1399,10 @@ def ncwrt_retrieval_obs_s1(retr_setup, outname=None):
     ncvar[:,:] = s1_dataunc[:,:]
 
     # satellite identifier
-    # ncvar = ncfp.createVariable( 'satellite_id', np.float64, ('npoints',),
-    #                              zlib=use_zlib, complevel=zlev            )
-    # ncvar.setncattr('long_name', 'satellite identifer')
-    # ncvar[:,:] = s1_satid[:]
+    ncvar = ncfp.createVariable( 'satellite_id', str, ('npoints',),
+                                 zlib=use_zlib, complevel=zlev            )
+    ncvar.setncattr('long_name', 'satellite identifer')
+    ncvar[:] = s1_satid[:]
 
     #-- global attributes
     ncfp.setncattr('creator_name',"The Inversion Lab, Hamburg, Germany")
@@ -1446,7 +1450,7 @@ def ncwrt_retrieval_obs_s2(retr_setup, outname=None):
     s2_table   = retr_setup.obs_dct['S2']
     timepts    = s2_table.geom.date_utc
     npts       = len(timepts)
-    s2_satid   = np.array(s2_table.sat_id_lst, dtype='S3')
+    s2_satid   = np.array(s2_table.sat_id_lst, dtype=str)
     s2_data    = s2_table.data
     s2_dataunc = s2_table.dataunc
     nt,nbands  = s2_data.shape
@@ -1500,10 +1504,10 @@ def ncwrt_retrieval_obs_s2(retr_setup, outname=None):
     ncvar[:,:] = s2_dataunc[:,:]
 
     # satellite identifier
-    # ncvar = ncfp.createVariable( 'satellite_id', np.float64, ('npoints',),
-    #                              zlib=use_zlib, complevel=zlev            )
-    # ncvar.setncattr('long_name', 'satellite identifer')
-    # ncvar[:,:] = s2_satid[:]
+    ncvar = ncfp.createVariable( 'satellite_id', str, ('npoints',),
+                                 zlib=use_zlib, complevel=zlev            )
+    ncvar.setncattr('long_name', 'satellite identifer')
+    ncvar[:] = s2_satid[:]
 
     #-- global attributes
     ncfp.setncattr('creator_name',"The Inversion Lab, Hamburg, Germany")
@@ -1547,7 +1551,7 @@ def wrt_nml_retrieval_control( retr_setup, outname=None ):
 
     prior_ftn = ".true." if retr_setup.use_prior else ".false."
     prior_cmt = "! if .true. then J_p included in Eq. 1.5"
-    state_ftn = ".true." if retr_setup.use_state else ".false."
+    state_ftn = ".true." if retr_setup.use_model else ".false."
     state_cmt = "! if .true. then J_m included in Eq. 1.5"
     grad_tol  = retr_setup.gtol
     grad_cmt  = "! stopping criterion for minimisation: rel. reduction in gradient norm"
@@ -1562,7 +1566,7 @@ def wrt_nml_retrieval_control( retr_setup, outname=None ):
     
     fp.write("&RETRCTL" + '\n')
     fp.write("  retr_use_prior_term = {} {}".format(prior_ftn, prior_cmt) + '\n')
-    fp.write("  retr_use_state_term = {} {}".format(state_ftn, state_cmt) + '\n')
+    fp.write("  retr_use_model_term = {} {}".format(state_ftn, state_cmt) + '\n')
     fp.write("  gradient_tol = {:e} {}".format(grad_tol, grad_cmt) + '\n')
     fp.write("  prior_pert = {:e} {}".format(pr_pert, pr_cmt) + '\n')
     fp.write("/" + '\n')
@@ -1631,27 +1635,40 @@ def pre_synthetic(options):
 
     #-- setup site file
     site_nml = options.site_nml
-    if not os.path.exists(site_nml):
-        msg = "specified namelist file ***{}*** does not exist.".format(site_nml)
+    if site_nml==None:
+        if os.path.exists('site.nml'):
+            msg = "'site.nml' from current working directory will be used."
+            FileLogger.info(msg)
+        else:
+            mni_nml = os.path.join(ss_dir_path,'site.nml')
+            shutil.copyfile(mni_nml, 'site.nml')
+            msg = "'site.nml' was created as copy of Wallerfing default namelist file ***{}***".format(
+            mni_nml)
+            FileLogger.info(msg)
+    elif not os.path.exists(site_nml):
+        msg = "specified namelist file ***{}*** does not exist. Will not continue!".format(site_nml)
         FileLogger.fatal(msg)
-        return
+        raise RuntimeError(msg)
     else:
-        if site_nml!='site.nml':
-            #-- 'site.nml' must exist in current working directory !
-            msg = "Copying default namelist file ***{}*** to current working directory".format(site_nml)
+        #-- site specification file must exist exactly as 'site.nml' in current working
+        #   directory
+        if site_nml=='site.nml':
+            msg = "'site.nml' will be used. There is no need to specify this filename explicitly."
+            FileLogger.info(msg)
+        else:
             shutil.copyfile(site_nml, 'site.nml')
+            msg = "Copied default namelist file ***{}*** to current working directory.".format(
+                site_nml)
+            FileLogger.info(msg)
 
-        #-- load site file
-        msg = "START reading namelist ***{}***...".format(site_nml)
-        FileLogger.info(msg)
-        nml_dct  = f90nml.read(site_nml)
-        #-- get dictionary for the site
-        site_dct = nml_dct['site_params']
-        #-- DEBUG
-        # for k,v in site_dct.iteritems():
-        #     print "{} => {}".format(k,v)
-        msg = "...reading DONE"
-        FileLogger.info(msg)
+    #-- load site file
+    msg = "START reading namelist ***{}***...".format(site_nml)
+    FileLogger.info(msg)
+    nml_dct  = f90nml.read('site.nml')
+    #-- get dictionary for the site
+    site_dct = nml_dct['site_params']
+    msg = "...reading DONE"
+    FileLogger.info(msg)
 
     #-- copy attributes
     setup_dct['lon']       = site_dct['lon']
@@ -1665,7 +1682,7 @@ def pre_synthetic(options):
 
     #-- retrieval system control
     setup_dct['use_prior'] = options.use_prior
-    setup_dct['use_state'] = options.use_state
+    setup_dct['use_model'] = options.use_model
     setup_dct['prior_pert'] = 0.25
 
     #-- temporal range
@@ -1720,7 +1737,7 @@ def pre_synthetic(options):
         retrieval_setup.setprior_synthetic()
 
     #-- setup default prior uncertainty
-    retrieval_setup.setprior_unc_default()
+    retrieval_setup.setprior_uncertainty()
 
     #-- setup dynamical-model
     retrieval_setup.set_dynmodel()
@@ -1759,35 +1776,47 @@ def pre_general(options):
 
     #-- setup site file
     site_nml = options.site_nml
-    if not os.path.exists(site_nml):
-        msg = "specified namelist file ***{}*** does not exist.".format(site_nml)
+    if site_nml==None:
+        if os.path.exists('site.nml'):
+            msg = "'site.nml' from current working directory will be used."
+            FileLogger.info(msg)
+        else:
+            mni_nml = os.path.join(ss_dir_path,'site.nml')
+            shutil.copyfile(mni_nml, 'site.nml')
+            msg = "'site.nml' was created as copy of Wallerfing default namelist file ***{}***".format(
+            mni_nml)
+            FileLogger.info(msg)
+    elif not os.path.exists(site_nml):
+        msg = "specified namelist file ***{}*** does not exist. Will not continue!".format(site_nml)
         FileLogger.fatal(msg)
-        return
+        raise RuntimeError(msg)
     else:
-        if site_nml!='site.nml':
-            #-- 'site.nml' must exist in current working directory !
-            msg = "Copying default namelist file ***{}*** to current working directory".format(site_nml)
-            if options.outdir!=None:
-                mkdirp_smart(options.outdir)
-                shutil.copyfile(site_nml, os.path.join(options.outdir,'site.nml'))
-            else:
-                shutil.copyfile(site_nml, 'site.nml')
+        #-- site specification file must exist exactly as 'site.nml' in current working
+        #   directory
+        if site_nml=='site.nml':
+            msg = "'site.nml' will be used. There is no need to specify this filename explicitly."
+            FileLogger.info(msg)
+        else:
+            shutil.copyfile(site_nml, 'site.nml')
+            msg = "Copied default namelist file ***{}*** to current working directory.".format(
+                site_nml)
+            FileLogger.info(msg)
 
-        #-- load site file
-        msg = "START reading namelist ***{}***...".format(site_nml)
-        FileLogger.info(msg)
-        nml_dct  = f90nml.read(site_nml)
-        #-- get dictionary for the site
-        site_dct = nml_dct['site_params']
-        msg = "...reading DONE"
-        FileLogger.info(msg)
-
-        #-- DEBUG
-        if options.verbose:
-            print "-"*30
-            for k,v in site_dct.iteritems():
-                print "{} => {}".format(k,v)
-            print "-"*30
+    #-- load site file
+    msg = "START reading namelist ***{}***...".format(site_nml)
+    FileLogger.info(msg)
+    nml_dct  = f90nml.read('site.nml')
+    #-- get dictionary for the site
+    site_dct = nml_dct['site_params']
+    msg = "...reading DONE"
+    FileLogger.info(msg)
+    
+    #-- DEBUG
+    if options.verbose:
+        print "-"*30
+        for k,v in site_dct.iteritems():
+            print "{} => {}".format(k,v)
+        print "-"*30
 
     #-- copy attributes
     setup_dct['lon']       = site_dct['lon']
@@ -1800,7 +1829,7 @@ def pre_general(options):
 
     #-- retrieval system control
     setup_dct['use_prior'] = options.use_prior
-    setup_dct['use_state'] = options.use_state
+    setup_dct['use_model'] = options.use_model
     setup_dct['gtol']      = options.gtol
     setup_dct['prior_pert'] = 0.
     #-- uncertainty settings on observations
@@ -1822,6 +1851,9 @@ def pre_general(options):
         setup_dct['canht_uncfloor']     = options.ctlvec_uncfloor[2]
         setup_dct['sm_uncfloor']        = options.ctlvec_uncfloor[3]
 
+    #-- dynamical model uncertainty inifile
+    if options.dynmodunc_inifile:
+        setup_dct['dynmodunc_inifile'] = options.dynmodunc_inifile
     #-- temporal range
     if options.time_start==None:
         setup_dct['time_start'] = options.time_start
@@ -1853,7 +1885,7 @@ def pre_general(options):
     #         into a consecutive time-series
     retrieval_setup.setup_common_schedule()
 
-    #-- setup default prior (state-variables)
+    #-- setup prior control vector
     #   NOTE: this must be done *AFTER* the schedule is completed!
     #
     states_file = options.states_file
@@ -1871,7 +1903,6 @@ def pre_general(options):
             FileLogger.info(msg)
             msg = "! ! ! Will apply default uncertainties only - this must be changed ! ! !"
             FileLogger.warn(msg)
-            retrieval_setup.setprior_unc_default()
         elif os.path.splitext(basename)[1]=='.csv':
             msg = "Prior state information will be read from ***{}***".format(states_file)
             FileLogger.info(msg)
@@ -1880,11 +1911,13 @@ def pre_general(options):
             FileLogger.info(msg)
             msg = "! ! ! Will apply default uncertainties only - this must be changed ! ! !"
             FileLogger.warn(msg)
-            retrieval_setup.setprior_unc_default()
         else:
             msg = "Unrecognised format of states file ***{}***. Cannot continue!".format(states_file)
             FileLogger.fatal(msg)
             return
+
+    #-- set control vector uncertainties
+    retrieval_setup.setprior_uncertainty()
 
     #-- setup dynamical-model
     retrieval_setup.set_dynmodel()
@@ -2054,7 +2087,6 @@ def create_argument_parser(progname=None):
     #-- add common options
     _add_common_options(xparser)
     xparser.add_argument( '--site_nml',
-                          default=os.path.join(ss_dir_path,'site.nml'),
                           help="""specification namelist file for selected site. If none is given a default namelist file suitable for the Wallerfing site will be used.""" )
     xparser.add_argument( '--use_generic_prior',
                           action='store_true',
@@ -2069,8 +2101,8 @@ def create_argument_parser(progname=None):
                           action='store_false',
                           default=True,
                           help="""whether to discard the prior information for the retrieval""" )
-    xparser.add_argument( '--no_use_state',
-                          dest='use_state',
+    xparser.add_argument( '--no_use_model',
+                          dest='use_model',
                           action='store_false',
                           help="""whether to discard the dynamical model on the state vector for the retrieval""" )
     _add_output_options(xparser)
@@ -2083,8 +2115,7 @@ def create_argument_parser(progname=None):
     #-- add common options
     _add_common_options(xparser)
     xparser.add_argument( '--site_nml',
-                          default=os.path.join(ss_dir_path,'site.nml'),
-                          help="""specification namelist file for selected site. If none is given a default namelist file suitable for the Wallerfing site will be used.""" )
+                          help="""specification namelist file for selected site. By default an existing file 'site.nml' will be used or a default namelist file suitable for the Wallerfing site will be copied to 'site.nml'.""" )
     xparser.add_argument( '--states_file',
                           help="""File that specifies a time-series of state-variables for the selected site (LAI, Canopy-height, Soilmoisture). This file may be given as a csv file compliant with the signature simulator or a JULES generated NetCDF file for a single spatial location. In case of a missing states file a generic prior suitable for agricultural sites will be applied.""" )
     xparser.add_argument( '--obs_s1',
@@ -2096,8 +2127,8 @@ def create_argument_parser(progname=None):
                           action='store_false',
                           default=True,
                           help="""whether to discard the prior information for the retrieval""" )
-    xparser.add_argument( '--no_use_state',
-                          dest='use_state',
+    xparser.add_argument( '--no_use_model',
+                          dest='use_model',
                           action='store_false',
                           help="""whether to discard the dynamical model on the state vector for the retrieval""" )
     xparser.add_argument( '--gtol',

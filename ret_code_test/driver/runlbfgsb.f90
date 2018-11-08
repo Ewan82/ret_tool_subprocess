@@ -162,13 +162,6 @@ program runopti
 
   call printoptimum(n,x0,sx,x)
 
-  ! !-- run combined S1+S2 simulation
-  ! write(*,'(a)') ' INFO::runsim:calling combinded S1+S2 simulation with simulate_s1s2...'
-  ! call simulate_s1s2(n, x, mf, ysim)
-  ! write(*,'(a)') ' INFO::runsim:...done.'
-  ! !-- create simulation output
-  ! call finishf(n, x, mf, ysim)
-
 end program runopti
 
 !***********************************************************

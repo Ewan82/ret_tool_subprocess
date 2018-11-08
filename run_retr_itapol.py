@@ -21,12 +21,9 @@ def find_nearest(array, value):
     return array[idx], idx
 
 
-def run_ret_tool(out_dir, **kwargs):
+def run_ret_tool(out_dir, run_ret=True, **kwargs):
     dir_path = os.path.dirname(os.path.realpath(__file__))
     print dir_path
-    subprocess.call(['cp', '-R', dir_path+'/ret_code', out_dir])
-    os.chdir(out_dir)
-    subprocess.call(['make', 'setup'])
     ret_tool_dic = {'time_start': '20170323', 'time_end': '20170720', 'site_nml': dir_path+'/site.nml', 'states_file':
                     False, 'obs_s1': False, 'obs_s2': False, 'no_use_prior': False, 'no_use_states': False, 'gtol':
                     1e0, 'dynmodunc_inifile': dir_path+'/mod_ini/dynmod_default.ini', 's1_unc': 0.4, 's2_relunc': 0.05,
@@ -36,46 +33,63 @@ def run_ret_tool(out_dir, **kwargs):
         for key, value in kwargs.iteritems():
             if value is not False:
                 ret_tool_dic[key] = value
-    cmd = ['bin/rs_pre.py', 'pre_general']
-    for key in ret_tool_dic.keys():
-        if ret_tool_dic[key] is not False:
-            if type(ret_tool_dic[key]) is str:
-                print 'str, '+key
-                cmd.append('--'+key)
-                cmd.append(ret_tool_dic[key])
-            elif type(ret_tool_dic[key]) is float:
-                print 'float, '+key
-                cmd.append('--'+key)
-                cmd.append(str(ret_tool_dic[key]))
-            elif type(ret_tool_dic[key]) is list:
-                cmd.append('--'+key)
-                for x in ret_tool_dic[key]:
-                    print x
-                    cmd.append(str(x))
-            else:
-                cmd.append('--'+key)
-    subprocess.call(cmd)
-    subprocess.call(['make', 'retrieval'])
-    subprocess.call(['make', 'mba'])
-    os.chdir(dir_path)
+    if run_ret is True:
+        subprocess.call(['cp', '-R', dir_path+'/ret_code', out_dir])
+        os.chdir(out_dir)
+        subprocess.call(['make', 'setup'])
+        cmd = ['bin/rs_pre.py', 'pre_general']
+        for key in ret_tool_dic.keys():
+            if ret_tool_dic[key] is not False:
+                if type(ret_tool_dic[key]) is str:
+                    print 'str, '+key
+                    cmd.append('--'+key)
+                    cmd.append(ret_tool_dic[key])
+                elif type(ret_tool_dic[key]) is float:
+                    print 'float, '+key
+                    cmd.append('--'+key)
+                    cmd.append(str(ret_tool_dic[key]))
+                elif type(ret_tool_dic[key]) is list:
+                    cmd.append('--'+key)
+                    for x in ret_tool_dic[key]:
+                        print x
+                        cmd.append(str(x))
+                else:
+                    cmd.append('--'+key)
+        subprocess.call(cmd)
+        subprocess.call(['make', 'retrieval'])
+        subprocess.call(['make', 'mba'])
+        os.chdir(dir_path)
+
     return ret_tool_dic
 
 
-def save_plot_err(dir, exp_no='test', point='sg01', site='ita', sname='test.png'):
-    fig, ax = plt.subplots(nrows=1, ncols=3, figsize=(14, 6),)
-    pr.plot_var('sm', dir, site=site, point=point, axes=ax[0])
-    #fig.savefig(dir + '/sm.png', bbox_inches='tight')
-    pr.plot_var('lai', dir, site=site, point=point, axes=ax[1])
-    #fig.savefig(dir + '/lai.png', bbox_inches='tight')
-    pr.plot_var('canht', dir, site=site, point=point, axes=ax[2])
-    fig.autofmt_xdate()
-    fig.savefig(dir + '/' + sname, bbox_inches='tight')
+def save_plot_err(_dir, exp_no='test', point='sg01', site='ita', sname='test.png'):
+    #fig, ax = plt.subplots(nrows=1, ncols=3, figsize=(14, 6),)
+    #pr.plot_var('sm', _dir, site=site, point=point, axes=ax[0])
+        #fig.savefig(dir + '/sm.png', bbox_inches='tight')
+    #pr.plot_var('lai', _dir, site=site, point=point, axes=ax[1])
+        #fig.savefig(dir + '/lai.png', bbox_inches='tight')
+    #pr.plot_var('canht', _dir, site=site, point=point, axes=ax[2])
+    #fig.autofmt_xdate()
+    #fig.savefig(_dir + '/' + sname, bbox_inches='tight')
 
-    sm_stats = pr.save_stats('sm', dir, site=site, point=point)
-    stats_file = dir + '/stats.txt'
+    #fig, ax = plt.subplots(nrows=1, ncols=2, figsize=(12, 6),)
+    #pr.plot_refl(_dir, point, axes=ax[0])
+    #pr.plot_backscat(_dir, point, axes=ax[1])
+    #fig.autofmt_xdate()
+    #fig.savefig(_dir + '/r_b_'+sname, bbox_inches='tight')
+
+    #fig, ax = plt.subplots(nrows=1, ncols=2, figsize=(14, 8),)
+    #pr.plot_refl_mod(_dir, point, axes=ax[0])
+    #pr.plot_backscat_mod(_dir, point, axes=ax[1])
+    #fig.autofmt_xdate()
+    #fig.savefig(_dir + '/r_b_mod_'+sname, bbox_inches='tight')
+
+    sm_stats = pr.save_stats('sm', _dir, site=site, point=point)
+    stats_file = _dir + '/stats_tayl.txt'
     lines = []
     lines.append('experiment stats \n')
-    lines.append('state_var: prior rmse, post rmse, prior ubrmse, post ubrmse, prior corrcoef, post corrcoef \n')
+    lines.append('state_var: prior rmse, post rmse, prior ubrmse, post ubrmse, prior corrcoef, post corrcoef, prior taylor, post taylor \n')
     lines.append('sm: ' + str(sm_stats) + ' \n')
     f = open(stats_file, 'w')
     for line in lines:
@@ -113,8 +127,9 @@ def make_exps_508med_arr_test(point='sg01', site='ita'):
     time_end = ['20171026']
     states_file = ['/home/users/if910917/projects/ret_tool_subprocess/state_files/retr_jules_prior.csv',
                    False]
-    obs_s1 = ['/home/users/if910917/projects/ret_tool_subprocess/S1/'+site+'_s1_'+point+'_hv.csv',
-              #'/home/users/if910917/projects/ret_tool_subprocess/S1/mni_s1_508_'+point+'_hv_vv.csv',
+    obs_s1 = [#'/home/users/if910917/projects/ret_tool_subprocess/S1/' + site + '_s1_' + point + '_hv.csv',
+              #'/home/users/if910917/projects/ret_tool_subprocess/S1/' + site + '_s1_' + point + '_vv.csv',
+              #'/home/users/if910917/projects/ret_tool_subprocess/S1/' + site + '_s1_' + point + '_hvvv.csv',
               False
               ]
     obs_s2 = ['/home/users/if910917/projects/ret_tool_subprocess/S2/'+site+'_s2_'+point+'_b4b8.csv',
@@ -140,7 +155,7 @@ def make_exps_508med_arr_test(point='sg01', site='ita'):
     return exp_list_final
 
 
-def run_retr_exp(exp_no, exp_tup, point='sg01', site='ita'):
+def run_retr_exp(exp_no, exp_tup, point='sg01', site='ita', run_ret=True):
     if type(exp_tup[2]) is str:
         prior = 'jules'
     else:
@@ -154,9 +169,10 @@ def run_retr_exp(exp_no, exp_tup, point='sg01', site='ita'):
     except(AttributeError):
         s2_str = 'nos2'
     save_dir = '/export/cloud/nceo/users/if910917/s3_exps/'+site+'/'+point+'/'+prior+'_'+s1_str+'_'+s2_str
-    ret_dic = run_ret_tool(save_dir, time_start=exp_tup[0], time_end=exp_tup[1], states_file=exp_tup[2], obs_s1=exp_tup[3],
-                 obs_s2=exp_tup[4], dynmodunc_inifile=exp_tup[5], s1_unc=exp_tup[6], s2_uncfloor=exp_tup[7],
-                 ctlvec_relunc=exp_tup[8], ctlvec_uncfloor=exp_tup[9], s2_relunc=exp_tup[10])
+    ret_dic = run_ret_tool(save_dir, run_ret=run_ret, time_start=exp_tup[0], time_end=exp_tup[1],
+                           states_file=exp_tup[2], obs_s1=exp_tup[3], obs_s2=exp_tup[4], dynmodunc_inifile=exp_tup[5],
+                           s1_unc=exp_tup[6], s2_uncfloor=exp_tup[7], ctlvec_relunc=exp_tup[8],
+                           ctlvec_uncfloor=exp_tup[9], s2_relunc=exp_tup[10])
     save_plot_err(save_dir, exp_no, point, site, sname=site+'_'+point+'_'+prior+'_'+s1_str+'_'+s2_str+'.png')
     stats_file = save_dir + '/exp_' + str(exp_no) + '_setup.txt'
     lines = []
@@ -169,7 +185,7 @@ def run_retr_exp(exp_no, exp_tup, point='sg01', site='ita'):
     return 'experiment '+str(exp_no)+' done! :-)'
 
 
-def exp_run_setup(point='sg01', site='ita'):
+def exp_run_setup(point='sg01', site='ita', run_retr=True):
     """
     Runs JULES for specified lat lon
     :param lat_lon: tuple containing latitude and longitude coordinate
@@ -182,7 +198,7 @@ def exp_run_setup(point='sg01', site='ita'):
         lines = []
         lines.append('cd ' + os.getcwd() + '\n')
         lines.append('module load python/canopy-1.7.2 \n')
-        lines.append('python run_retr_itapol.py ' + str(x) + ' ' + point + ' ' + site + '\n')
+        lines.append('python run_retr_itapol.py ' + str(x) + ' ' + point + ' ' + site + ' ' + str(run_retr) + '\n')
         f = open(run_file, 'w')
         for line in lines:
             f.write(line)
@@ -209,5 +225,6 @@ if __name__ == "__main__":
     exp_no = int(sys.argv[1])
     point = sys.argv[2]
     site = sys.argv[3]
-    run_retr_exp(exp_no, exp_list[exp_no], point, site)
+    run_ret = sys.argv == 'True'
+    run_retr_exp(exp_no, exp_list[exp_no], point, site, run_ret=False)
     print 'ran experiment '+str(exp_no)

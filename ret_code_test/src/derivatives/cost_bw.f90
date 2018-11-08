@@ -18,7 +18,7 @@
 !> \authors The Inversion Lab
 !> \date  January 2018
 SUBROUTINE COST_BW(n, x, x_bw, m, f, f_bw)
-  USE MO_RETRIEVAL, ONLY : retr_use_prior_term, retr_use_state_term
+  USE MO_RETRIEVAL, ONLY : retr_use_prior_term, retr_use_model_term
   IMPLICIT NONE
 ! arguments
 !< length of control
@@ -38,36 +38,32 @@ SUBROUTINE COST_BW(n, x, x_bw, m, f, f_bw)
   REAL(kind=8) :: priordiff_bw(n), costprior_bw
   REAL(kind=8) :: modeldiff(n), costmodel
   REAL(kind=8) :: modeldiff_bw(n), costmodel_bw
-  REAL(kind=8) :: xphys(n)
-  REAL(kind=8) :: xphys_bw(n)
   LOGICAL :: ldebug
 ! externals
-  EXTERNAL X2P, STATE_MODEL, RESIDUAL_PRIOR
-  EXTERNAL X2P_BW, RESIDUAL_PRIOR_BW
+  EXTERNAL STATE_MODEL, RESIDUAL_PRIOR
+  EXTERNAL RESIDUAL_PRIOR_BW
   INTRINSIC SUM
   INTEGER :: branch
 !-- set flags
   ldebug = .true.
-!-- control vector in physical units
-  CALL X2P(n, x, xphys)
 ! TAPENADE: (AD07) Data-Flow recovery (TBR) on this call to misfit needs to save the I-O state
-! TAPENADE: (AD14) Checkpointing this call to misfit needs to save an undeclared side-effect variable: /ga/[256,512[
-! TAPENADE: (AD14) Checkpointing this call to misfit needs to save an undeclared side-effect variable: /ga/[0,256[
 ! TAPENADE: (AD14) Checkpointing this call to misfit needs to save an undeclared side-effect variable: /multi/[13440,20160[
 ! TAPENADE: (AD14) Checkpointing this call to misfit needs to save an undeclared side-effect variable: /multi/[6720,13440[
 ! TAPENADE: (AD14) Checkpointing this call to misfit needs to save an undeclared side-effect variable: /multi/[0,6720[
+! TAPENADE: (AD14) Checkpointing this call to misfit needs to save an undeclared side-effect variable: /ga/[256,512[
+! TAPENADE: (AD14) Checkpointing this call to misfit needs to save an undeclared side-effect variable: /ga/[0,256[
 !-- compute misfit
-  CALL MISFIT(n, xphys, m, obsdiff)
+  CALL MISFIT(n, x, m, obsdiff)
   costobs = 0.5_8*SUM(obsdiff**2)
   IF (ldebug) WRITE(*, '(a,e25.16)') ' DIAG::cost_bw:cost_obs=  ', costobs
 !-- compute state model differences
-  IF (retr_use_state_term) THEN
-    CALL H_M(n, xphys, modeldiff)
+  IF (retr_use_model_term) THEN
+    CALL H_M(n, x, modeldiff)
     costmodel = 0.5_8*SUM(modeldiff**2)
     CALL PUSHCONTROL1B(0)
   ELSE
-    costmodel = 0._8
     CALL PUSHCONTROL1B(1)
+    costmodel = 0._8
   END IF
   IF (ldebug) WRITE(*, '(a,e25.16)') ' DIAG::cost_bw:cost_model=', &
 &             costmodel
@@ -97,43 +93,16 @@ SUBROUTINE COST_BW(n, x, x_bw, m, f, f_bw)
   IF (branch .EQ. 0) THEN
     modeldiff_bw = 0.0_8
     modeldiff_bw = 2*modeldiff*0.5_8*costmodel_bw
-    CALL H_M_BW(n, xphys, xphys_bw, modeldiff, modeldiff_bw)
-  ELSE
-    xphys_bw = 0.0_8
+    CALL H_M_BW(n, x, x_bw, modeldiff, modeldiff_bw)
   END IF
   obsdiff_bw = 0.0_8
   obsdiff_bw = 2*obsdiff*0.5_8*costobs_bw
-  CALL MISFIT_BW(n, xphys, xphys_bw, m, obsdiff, obsdiff_bw)
-  CALL X2P_BW(n, x, x_bw, xphys, xphys_bw)
+  CALL MISFIT_BW(n, x, x_bw, m, obsdiff, obsdiff_bw)
   f_bw = 0.0_8
 END SUBROUTINE COST_BW
 
-!  Differentiation of x2p in reverse (adjoint) mode (with options messagesInFile noinclude noISIZE r8):
-!   gradient     of useful results: x xp
-!   with respect to varying inputs: x
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!> \file mapping.f90
-!> \brief mapping of 1D control vector to physical variables
-!> \authors The Inversion Lab (Michael Vossbeck, Thomas Kaminski) 
-!> \date  April 2018
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-SUBROUTINE X2P_BW(n, x, x_bw, xp, xp_bw)
-  IMPLICIT NONE
-! arguments
-  INTEGER, INTENT(IN) :: n
-  REAL(kind=8), INTENT(IN) :: x(n)
-  REAL(kind=8) :: x_bw(n)
-  REAL(kind=8) :: xp(n)
-  REAL(kind=8) :: xp_bw(n)
-! local decls
-  REAL(kind=8) :: sx(n), pr(n)
-  EXTERNAL GETPRIOR
-  CALL GETPRIOR(n, pr, sx)
-  x_bw = x_bw + sx*xp_bw
-END SUBROUTINE X2P_BW
-
 !  Differentiation of h_m in reverse (adjoint) mode (with options messagesInFile noinclude noISIZE r8):
-!   gradient     of useful results: statediff
+!   gradient     of useful results: x statediff
 !   with respect to varying inputs: x
 !***********************************************************
 !     H_m
@@ -162,8 +131,8 @@ SUBROUTINE H_M_BW(n, x, x_bw, statediff, statediff_bw)
   REAL(kind=8) :: statediff_bw(n)
 ! local decls
   INTEGER :: nc, ns, np
-  REAL(kind=8) :: xm(n)
-  REAL(kind=8) :: xm_bw(n)
+  REAL(kind=8) :: xm(n), xphys(n)
+  REAL(kind=8) :: xm_bw(n), xphys_bw(n)
   INTEGER :: i, j
   REAL(kind=8) :: temp_bw
 !-- #control vector
@@ -176,20 +145,21 @@ SUBROUTINE H_M_BW(n, x, x_bw, statediff, statediff_bw)
   IF (n .NE. nc) THEN
     STOP
   ELSE
-    x_bw = 0.0_8
+    xphys_bw = 0.0_8
     xm_bw = 0.0_8
     DO i=ns,1,-1
       temp_bw = statediff_bw(np+i)/unc_model(i)
       xm_bw(np+i) = xm_bw(np+i) + temp_bw
-      x_bw(np+i) = x_bw(np+i) - temp_bw
+      xphys_bw(np+i) = xphys_bw(np+i) - temp_bw
       statediff_bw(np+i) = 0.0_8
     END DO
     DO i=ns,1,-1
       DO j=ns,1,-1
-        x_bw(np+j) = x_bw(np+j) + mat_model(i, j)*xm_bw(np+i)
+        xphys_bw(np+j) = xphys_bw(np+j) + mat_model(i, j)*xm_bw(np+i)
       END DO
       xm_bw(np+i) = 0.0_8
     END DO
+    CALL X2P_BW(n, x, x_bw, xphys, xphys_bw)
   END IF
 END SUBROUTINE H_M_BW
 
@@ -224,8 +194,7 @@ END SUBROUTINE H_M_BW
 !> @param[out] obsdiff misfit vector
 !
 SUBROUTINE MISFIT_BW(n, x, x_bw, m, obsdiff, obsdiff_bw)
-  USE MO_SENSIMUL, ONLY : get_nc_s1, get_nc_s2, get_m_s1, get_m_s2, &
-& sim_fill_value
+  USE MO_SENSIMUL, ONLY : get_m_s1, get_m_s2, sim_fill_value
   IMPLICIT NONE
 ! arguments
   INTEGER, INTENT(IN) :: n, m
@@ -238,31 +207,31 @@ SUBROUTINE MISFIT_BW(n, x, x_bw, m, obsdiff, obsdiff_bw)
   REAL(kind=8) :: y_bw(m)
   LOGICAL :: succeed
   INTEGER :: nobs_s1, nobs_s2
-  INTEGER :: n_s1, n_s2, m_s1, m_s2
-  INTEGER :: p1, p2
-  REAL(kind=8) :: x_s1(GET_NC_S1()), x_s2(GET_NC_S2())
-  REAL(kind=8) :: x_s1_bw(GET_NC_S1()), x_s2_bw(GET_NC_S2())
+  INTEGER :: m_s1, m_s2
   INTEGER :: i
 ! externals
-  EXTERNAL SIMULATE_S1, SIMULATE_S2, GETOBS, CONTROL_VECTOR_SPLIT
-  EXTERNAL SIMULATE_S1_BW, SIMULATE_S2_BW, CONTROL_VECTOR_SPLIT_BW
+  EXTERNAL SIMULATE_S1S2, GETOBS
+  EXTERNAL SIMULATE_S1S2_BW
   INTEGER :: branch
 !-- read obs
   CALL GETOBS(m, yobs, syobs, nobs_s1, nobs_s2, succeed)
   IF (.NOT.succeed) THEN
     STOP
   ELSE
-!-- extract specific control vectors
-    n_s1 = GET_NC_S1()
-    n_s2 = GET_NC_S2()
+! TAPENADE: (AD07) Data-Flow recovery (TBR) on this call to simulate_s1s2 needs to save the I-O state
+! TAPENADE: (AD14) Checkpointing this call to simulate_s1s2 needs to save an undeclared side-effect variable: /ga/[256,512[
+! TAPENADE: (AD14) Checkpointing this call to simulate_s1s2 needs to save an undeclared side-effect variable: /ga/[0,256[
+! TAPENADE: (AD14) Checkpointing this call to simulate_s1s2 needs to save an undeclared side-effect variable: /multi/[13440,20160[
+! TAPENADE: (AD14) Checkpointing this call to simulate_s1s2 needs to save an undeclared side-effect variable: /multi/[6720,13440[
+! TAPENADE: (AD14) Checkpointing this call to simulate_s1s2 needs to save an undeclared side-effect variable: /multi/[0,6720[
+!-- run S1+S2 simulation
+    CALL SIMULATE_S1S2(n, x, m, y)
     m_s1 = GET_M_S1()
     m_s2 = GET_M_S2()
-    CALL CONTROL_VECTOR_SPLIT(n, x, n_s1, x_s1, n_s2, x_s2)
-!-- misfit related to S1
     IF (nobs_s1 .GT. 0) THEN
-      CALL SIMULATE_S1(n_s1, x_s1, m_s1, y(1:m_s1))
       DO i=1,m_s1
-        IF (yobs(i) .NE. sim_fill_value) THEN
+        IF (yobs(i) .NE. sim_fill_value .AND. y(i) .NE. sim_fill_value) &
+&       THEN
           CALL PUSHCONTROL1B(1)
         ELSE
           CALL PUSHCONTROL1B(0)
@@ -272,38 +241,25 @@ SUBROUTINE MISFIT_BW(n, x, x_bw, m, obsdiff, obsdiff_bw)
     ELSE
       CALL PUSHCONTROL1B(1)
     END IF
-!-- misfit related to S2
-    p1 = m_s1 + 1
-    p2 = m_s1 + m_s2
     IF (nobs_s2 .GT. 0) THEN
-! TAPENADE: (AD07) Data-Flow recovery (TBR) on this call to simulate_s2 needs to save the I-O state
-! TAPENADE: (AD14) Checkpointing this call to simulate_s2 needs to save an undeclared side-effect variable: /multi/[13440,20160[
-! TAPENADE: (AD14) Checkpointing this call to simulate_s2 needs to save an undeclared side-effect variable: /multi/[6720,13440[
-! TAPENADE: (AD14) Checkpointing this call to simulate_s2 needs to save an undeclared side-effect variable: /multi/[0,6720[
-! TAPENADE: (AD14) Checkpointing this call to simulate_s2 needs to save an undeclared side-effect variable: /ga/[256,512[
-! TAPENADE: (AD14) Checkpointing this call to simulate_s2 needs to save an undeclared side-effect variable: /ga/[0,256[
-      CALL SIMULATE_S2(n_s2, x_s2, m_s2, y(p1:p2))
-      DO i=p1,p2
-        IF (yobs(i) .NE. sim_fill_value) THEN
+      DO i=m_s1+1,m_s1+m_s2
+        IF (yobs(i) .NE. sim_fill_value .AND. y(i) .NE. sim_fill_value) &
+&       THEN
           CALL PUSHCONTROL1B(1)
         ELSE
           CALL PUSHCONTROL1B(0)
         END IF
       END DO
       y_bw = 0.0_8
-      DO i=p2,p1,-1
+      DO i=m_s1+m_s2,m_s1+1,-1
         CALL POPCONTROL1B(branch)
         IF (branch .NE. 0) THEN
           y_bw(i) = y_bw(i) + obsdiff_bw(i)/syobs(i)
           obsdiff_bw(i) = 0.0_8
         END IF
       END DO
-      CALL SIMULATE_S2_BW(n_s2, x_s2, x_s2_bw, m_s2, y(p1:p2), y_bw(p1:&
-&                   p2))
     ELSE
-      obsdiff_bw(p1:p2) = 0.0_8
       y_bw = 0.0_8
-      x_s2_bw = 0.0_8
     END IF
     CALL POPCONTROL1B(branch)
     IF (branch .EQ. 0) THEN
@@ -314,16 +270,107 @@ SUBROUTINE MISFIT_BW(n, x, x_bw, m, obsdiff, obsdiff_bw)
           obsdiff_bw(i) = 0.0_8
         END IF
       END DO
-      CALL SIMULATE_S1_BW(n_s1, x_s1, x_s1_bw, m_s1, y(1:m_s1), y_bw(1:&
-&                   m_s1))
-      y_bw(1:m_s1) = 0.0_8
-    ELSE
-      x_s1_bw = 0.0_8
     END IF
-    CALL CONTROL_VECTOR_SPLIT_BW(n, x, x_bw, n_s1, x_s1, x_s1_bw, n_s2, &
-&                          x_s2, x_s2_bw)
+    CALL SIMULATE_S1S2_BW(n, x, x_bw, m, y, y_bw)
   END IF
 END SUBROUTINE MISFIT_BW
+
+!  Differentiation of simulate_s1s2 in reverse (adjoint) mode (with options messagesInFile noinclude noISIZE r8):
+!   gradient     of useful results: x y
+!   with respect to varying inputs: x
+!***********************************************************
+!     simulate_s1s2
+!
+!> @brief Implementation of the combined S1 and S2 observation operator.
+!>        Computes backscatter values (VH,VV) and top-of-canopy BRFs in 13 Sentinel2 bands
+!>        for the respective states in the control vector.
+!
+!
+!> @param[in]   n  length of control vector for multiple simulations in MW and optical domain
+!> @param[in]   x  control vector normalised by prior uncertainty
+!                  (expected ordering is: S1 related parameter(s) followed by
+!                   by state variables LAI,HC,SM per 'simulation point')
+!> @param[in]   m  length of output vector
+!> @param[out]  y  simulated backscatter values (VH,VV) and simulated TOC BRFs
+!                  (for all 13 S2 wave-bands)
+!                  (Ordering is: simulated backscatter values per 'simulation point'
+!                                followed by BRF values per 'simulation point')
+!
+SUBROUTINE SIMULATE_S1S2_BW(n, x, x_bw, m, y, y_bw)
+  USE MO_SENSIMUL, ONLY : get_nc_s1, get_nc_s2, get_m_s1, get_m_s2, &
+& get_n, get_m
+  USE MO_SENSIMUL, ONLY : sim_fill_value
+  IMPLICIT NONE
+! arguments
+  INTEGER, INTENT(IN) :: n, m
+  REAL(kind=8), INTENT(IN) :: x(n)
+  REAL(kind=8) :: x_bw(n)
+  REAL(kind=8) :: y(m)
+  REAL(kind=8) :: y_bw(m)
+! local decls
+  REAL(kind=8) :: xp_s1(GET_NC_S1()), xp_s2(GET_NC_S2())
+  REAL(kind=8) :: xp_s1_bw(GET_NC_S1()), xp_s2_bw(GET_NC_S2())
+  INTEGER :: n_s1, n_s2, m_s1, m_s2
+  REAL(kind=8) :: xphys(n)
+  REAL(kind=8) :: xphys_bw(n)
+  INTEGER :: res
+  INTEGER :: res0
+  INTEGER :: res1
+  INTEGER :: res2
+  INTEGER :: branch
+!-- dimension consistency
+  res = GET_N()
+  IF (n .NE. res) THEN
+    STOP
+  ELSE
+    res1 = GET_M()
+    IF (m .NE. res1) THEN
+      STOP
+    ELSE
+!-- initialise output
+!-- convert normalised to physical control vector
+      CALL X2P(n, x, xphys)
+!-- extract specific control vectors
+      n_s1 = GET_NC_S1()
+      n_s2 = GET_NC_S2()
+      m_s1 = GET_M_S1()
+      m_s2 = GET_M_S2()
+      CALL CONTROL_VECTOR_SPLIT(n, xphys, n_s1, xp_s1, n_s2, xp_s2)
+!-- S1 simulation
+      IF (n_s1 .GT. 0) THEN
+        CALL SIMULATE_S1(n_s1, xp_s1, m_s1, y(1:m_s1))
+        CALL PUSHCONTROL1B(0)
+      ELSE
+        CALL PUSHCONTROL1B(1)
+      END IF
+!-- S2 simulation
+      IF (n_s2 .GT. 0) THEN
+! TAPENADE: (AD07) Data-Flow recovery (TBR) on this call to simulate_s2 needs to save the I-O state
+! TAPENADE: (AD14) Checkpointing this call to simulate_s2 needs to save an undeclared side-effect variable: /multi/[13440,20160[
+! TAPENADE: (AD14) Checkpointing this call to simulate_s2 needs to save an undeclared side-effect variable: /multi/[6720,13440[
+! TAPENADE: (AD14) Checkpointing this call to simulate_s2 needs to save an undeclared side-effect variable: /multi/[0,6720[
+! TAPENADE: (AD14) Checkpointing this call to simulate_s2 needs to save an undeclared side-effect variable: /ga/[256,512[
+! TAPENADE: (AD14) Checkpointing this call to simulate_s2 needs to save an undeclared side-effect variable: /ga/[0,256[
+        CALL SIMULATE_S2(n_s2, xp_s2, m_s2, y(m_s1+1:m_s1+m_s2))
+        CALL SIMULATE_S2_BW(n_s2, xp_s2, xp_s2_bw, m_s2, y(m_s1+1:m_s1+&
+&                     m_s2), y_bw(m_s1+1:m_s1+m_s2))
+      ELSE
+        xp_s2_bw = 0.0_8
+      END IF
+      CALL POPCONTROL1B(branch)
+      IF (branch .EQ. 0) THEN
+        CALL SIMULATE_S1_BW(n_s1, xp_s1, xp_s1_bw, m_s1, y(1:m_s1), y_bw&
+&                     (1:m_s1))
+        y_bw(1:m_s1) = 0.0_8
+      ELSE
+        xp_s1_bw = 0.0_8
+      END IF
+      CALL CONTROL_VECTOR_SPLIT_BW(n, xphys, xphys_bw, n_s1, xp_s1, &
+&                            xp_s1_bw, n_s2, xp_s2, xp_s2_bw)
+      CALL X2P_BW(n, x, x_bw, xphys, xphys_bw)
+    END IF
+  END IF
+END SUBROUTINE SIMULATE_S1S2_BW
 
 !  Differentiation of simulate_s1 in reverse (adjoint) mode (with options messagesInFile noinclude noISIZE r8):
 !   gradient     of useful results: y
@@ -366,8 +413,6 @@ SUBROUTINE SIMULATE_S1_BW(n, x, x_bw, m, y, y_bw)
   INTEGER :: i0, i1, j0, j1
   REAL(kind=8) :: statev(nparam_s1+nsc)
   REAL(kind=8) :: statev_bw(nparam_s1+nsc)
-  REAL(kind=8) :: xpr_s1(nparam_s1+npts_s1*nsc), sxpr_s1(nparam_s1+&
-& npts_s1*nsc)
   REAL(kind=8) :: single_ivgeom(4)
   INTEGER :: res
   INTEGER :: res0
@@ -1608,7 +1653,6 @@ SUBROUTINE SIMULATE_S2_BW(n, x, x_bw, m, y, y_bw)
   REAL(kind=8) :: statev(nsc)
   REAL(kind=8) :: statev_bw(nsc)
   REAL(kind=8) :: single_ivgeom(4)
-  REAL(kind=8) :: xpr_s2(npts_s2*nsc), sxpr_s2(npts_s2*nsc)
   INTEGER :: res
   INTEGER :: res0
   INTEGER :: res1
@@ -3299,8 +3343,8 @@ SUBROUTINE MULTIPLE_DOM_BW(teta_0)
 END SUBROUTINE MULTIPLE_DOM_BW
 
 !  Differentiation of convolve in reverse (adjoint) mode (with options messagesInFile noinclude noISIZE r8):
-!   gradient     of useful results: s1 convolve
-!   with respect to varying inputs: s1
+!   gradient     of useful results: convolve spect1
+!   with respect to varying inputs: spect1
 !***********************************************************
 !     convolve
 !
@@ -3308,25 +3352,25 @@ END SUBROUTINE MULTIPLE_DOM_BW
 !
 !> @details TBD
 !
-!> @param[in]  nw  length of spectra
-!> @param[in]  s1  first spectrum
-!> @param[in]  s2  second spectrum
+!> @param[in]  nw      length/size of spectra
+!> @param[in]  spect1  first spectrum
+!> @param[in]  spect2  second spectrum
 !
-SUBROUTINE CONVOLVE_BW0(nw, s1, s1_bw, s2, convolve_bw)
+SUBROUTINE CONVOLVE_BW0(nw, spect1, spect1_bw, spect2, convolve_bw)
   IMPLICIT NONE
 ! arguments
   INTEGER, INTENT(IN) :: nw
-  REAL(kind=8), INTENT(IN) :: s1(nw), s2(nw)
-  REAL(kind=8) :: s1_bw(nw)
+  REAL(kind=8), INTENT(IN) :: spect1(nw), spect2(nw)
+  REAL(kind=8) :: spect1_bw(nw)
 ! local decls
-  REAL(kind=8) :: s1_dot_s2, s2_sum
-  REAL(kind=8) :: s1_dot_s2_bw
+  REAL(kind=8) :: spect1_dot_spect2, spect2_sum
+  REAL(kind=8) :: spect1_dot_spect2_bw
   INTRINSIC SUM
   REAL(kind=8) :: convolve_bw
   REAL(kind=8) :: convolve
-  s2_sum = SUM(s2)
-  s1_dot_s2_bw = convolve_bw/s2_sum
-  s1_bw = s1_bw + s2*s1_dot_s2_bw
+  spect2_sum = SUM(spect2)
+  spect1_dot_spect2_bw = convolve_bw/spect2_sum
+  spect1_bw = spect1_bw + spect2*spect1_dot_spect2_bw
 END SUBROUTINE CONVOLVE_BW0
 
 !  Differentiation of sm_to_rsl1 in reverse (adjoint) mode (with options messagesInFile noinclude noISIZE r8):
@@ -3356,8 +3400,32 @@ SUBROUTINE SM_TO_RSL1_BW0(sm, sm_bw, rsl1, sm_coeff, sm_to_rsl1_bw)
   sm_bw = -(rsl1*sm_coeff*sm_to_rsl1_bw)
 END SUBROUTINE SM_TO_RSL1_BW0
 
+!  Differentiation of x2p in reverse (adjoint) mode (with options messagesInFile noinclude noISIZE r8):
+!   gradient     of useful results: x xp
+!   with respect to varying inputs: x
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!> \file mapping.f90
+!> \brief mapping of 1D control vector to physical variables
+!> \authors The Inversion Lab (Michael Vossbeck, Thomas Kaminski) 
+!> \date  April 2018
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+SUBROUTINE X2P_BW(n, x, x_bw, xp, xp_bw)
+  IMPLICIT NONE
+! arguments
+  INTEGER, INTENT(IN) :: n
+  REAL(kind=8), INTENT(IN) :: x(n)
+  REAL(kind=8) :: x_bw(n)
+  REAL(kind=8) :: xp(n)
+  REAL(kind=8) :: xp_bw(n)
+! local decls
+  REAL(kind=8) :: sx(n), pr(n)
+  EXTERNAL GETPRIOR
+  CALL GETPRIOR(n, pr, sx)
+  x_bw = x_bw + sx*xp_bw
+END SUBROUTINE X2P_BW
+
 !  Differentiation of control_vector_split in reverse (adjoint) mode (with options messagesInFile noinclude noISIZE r8):
-!   gradient     of useful results: x x_s1 x_s2
+!   gradient     of useful results: x_s1 x_s2
 !   with respect to varying inputs: x
 SUBROUTINE CONTROL_VECTOR_SPLIT_BW(n, x, x_bw, n_s1, x_s1, x_s1_bw, n_s2&
 & , x_s2, x_s2_bw)
@@ -3414,6 +3482,7 @@ SUBROUTINE CONTROL_VECTOR_SPLIT_BW(n, x, x_bw, n_s1, x_s1, x_s1_bw, n_s2&
       CALL PUSHINTEGER4(j)
       j = j + nsc
     END DO
+    x_bw = 0.0_8
     DO i=npts,1,-1
       CALL POPINTEGER4(j)
       CALL POPCONTROL1B(branch)

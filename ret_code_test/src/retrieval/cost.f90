@@ -11,7 +11,7 @@
 !> \authors The Inversion Lab
 !> \date  January 2018
 subroutine cost(n, x, m, f)
-  use mo_retrieval, only:retr_use_prior_term, retr_use_state_term
+  use mo_retrieval, only:retr_use_prior_term, retr_use_model_term
   implicit none
   ! arguments
   integer, intent(in) :: n         !< length of control
@@ -22,27 +22,23 @@ subroutine cost(n, x, m, f)
   real(kind=8) :: obsdiff(m), costobs
   real(kind=8) :: priordiff(n), costprior
   real(kind=8) :: modeldiff(n), costmodel
-  real(kind=8) :: xphys(n) 
   logical :: ldebug
   ! externals
-  external x2p, state_model, residual_prior
+  external state_model, residual_prior
 
   !-- set flags
   ldebug = .true.
 
-  !-- control vector in physical units
-  call x2p(n, x, xphys)
-
   !-- compute misfit
-  call misfit (n, xphys, m, obsdiff)
+  call misfit (n, x, m, obsdiff)
   costobs = 0.5_8 * (sum(obsdiff**2))
   if( ldebug ) then
      write(*,'(a,e25.16)') ' DIAG::cost:cost_obs=  ',costobs
   endif
 
   !-- compute state model differences
-  if( retr_use_state_term ) then
-     call H_m(n, xphys, modeldiff)
+  if( retr_use_model_term ) then
+     call H_m(n, x, modeldiff)
      costmodel = 0.5_8 * (sum(modeldiff**2))
   else
      costmodel = 0._8
